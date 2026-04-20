@@ -1,11 +1,3 @@
----
-name: "Pull Request: Feature/Bug Merge"
-about: Use this template to merge your work into the main branch.
-title: "[PR] - Describe the changes"
-labels: 'sync, review-needed'
-assignees: 'jiguangBrt'
----
-
 **Summary**
 <!-- Briefly describe what this code segment adds, modifies, or fixes. -->
 > 
