@@ -370,6 +370,111 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1001 &1256030748
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1505902220742849359, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1449090960}
+    - target: {fileID: 1505902220742849359, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: reactionDelay
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1449090960}
+    - target: {fileID: 3240968678079208785, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3240968678079208785, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3240968678079208785, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_GravityScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3240968678079208785, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5187370552180204898, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Size.x
+      value: 5.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5187370552180204898, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Size.y
+      value: 5.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5187370552180204898, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: d3bd16cf2d6a0d9448120fc54c9cf4c9, type: 3}
+    - target: {fileID: 5187370552180204898, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5187370552180204898, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7889086360451900784, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Name
+      value: Bat
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
 --- !u!1 &1391473339
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,6 +735,8 @@ GameObject:
   - component: {fileID: 1449090957}
   - component: {fileID: 1449090956}
   - component: {fileID: 1449090955}
+  - component: {fileID: 1449090960}
+  - component: {fileID: 1449090961}
   m_Layer: 0
   m_Name: Lumi
   m_TagString: Untagged
@@ -879,6 +986,32 @@ Transform:
   - {fileID: 48966287}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1449090960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449090954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fededa7b632dde34499504e39711bc28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxDelay: 1
+--- !u!114 &1449090961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449090954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6422595c57526124091df0adf908e5b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  freezeDuration: 0.3
 --- !u!1 &1694238040
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,3 +1125,4 @@ SceneRoots:
   - {fileID: 1694238044}
   - {fileID: 1449090959}
   - {fileID: 1391473341}
+  - {fileID: 1256030748}
