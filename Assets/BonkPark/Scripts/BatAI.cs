@@ -1,17 +1,19 @@
 using UnityEngine;
 
-// Bat chase AI: reads a delayed snapshot of Lumi's position from ReactionBuffer and steers toward it with alignment-shaped speed.
+// Bat chase AI: steers toward Lumi's current position with a delayed reaction to direction changes.
 [RequireComponent(typeof(Rigidbody2D))]
 public class BatAI : MonoBehaviour
 {
     [Header("Target")]
 
-    [Tooltip("Lumi's reaction buffer.")]
-    [SerializeField] ReactionBuffer target;
+    [Tooltip("Lumi's transform.")]
+    [SerializeField] Transform target;
 
-    [Tooltip("Reaction delay, seconds.")]
-    [Range(0.05f, 0.8f)]
-    [SerializeField] float reactionDelay = 0.4f;
+    [Tooltip("Steering reaction delay, seconds.")]
+    [Range(0.05f, 0.3f)]
+    [SerializeField] float reactionDelay = 0.1f;
+
+    const float MaxReactionDelay = 0.3f;
 
     [Header("Movement")]
 
@@ -45,6 +47,10 @@ public class BatAI : MonoBehaviour
     Vector2 heading;
     float currentSpeed;
 
+    Vector2[] desiredBuffer;
+    int desiredHead;
+    int desiredCount;
+
     // Populates the two curves with sensible defaults on inspector Reset.
     void Reset()
     {
@@ -66,18 +72,30 @@ public class BatAI : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         heading = initialHeading.sqrMagnitude > 0f ? initialHeading.normalized : Vector2.right;
         currentSpeed = 0f;
+
+        int capacity = Mathf.CeilToInt(MaxReactionDelay / Time.fixedDeltaTime) + 8;
+        desiredBuffer = new Vector2[capacity];
+        desiredHead = 0;
+        desiredCount = 0;
     }
 
-    // Per-physics-step steering toward the delayed target snapshot.
+    // Per-physics-step steering toward Lumi's current position; desired direction is read from a delay-shifted buffer so direction changes take reactionDelay seconds to register.
     void FixedUpdate()
     {
         if (target == null) return;
 
-        Vector2 snapshot = target.GetSnapshot(reactionDelay);
-        Vector2 toTarget = snapshot - rb.position;
+        Vector2 toTarget = (Vector2)target.position - rb.position;
         if (toTarget.sqrMagnitude < 0.0001f) return;
 
-        Vector2 desired = toTarget.normalized;
+        Vector2 instantDesired = toTarget.normalized;
+
+        desiredBuffer[desiredHead] = instantDesired;
+        desiredHead = (desiredHead + 1) % desiredBuffer.Length;
+        if (desiredCount < desiredBuffer.Length) desiredCount++;
+
+        int stepsAgo = Mathf.Min(Mathf.RoundToInt(reactionDelay / Time.fixedDeltaTime), desiredCount - 1);
+        int readIdx = (desiredHead - 1 - stepsAgo + desiredBuffer.Length) % desiredBuffer.Length;
+        Vector2 desired = desiredBuffer[readIdx];
 
         // Alignment scales target speed: aligned = full, sideways = slow for tighter turn, reversed = near zero.
         float alignment = Vector2.Dot(heading, desired);

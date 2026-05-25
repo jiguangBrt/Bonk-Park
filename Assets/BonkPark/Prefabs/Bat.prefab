@@ -239,7 +239,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  reactionDelay: 0.4
+  reactionDelay: 0.1
   maxSpeed: 13
   acceleration: 12
   autoBraking: 25
