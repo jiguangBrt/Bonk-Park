@@ -2,12 +2,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Lumi 死亡处理。冻结 freezeDuration 秒给玩家一个"被抓到"的反馈瞬间，然后重载当前
-// 场景。Die() 幂等：dying 标志位锁住后续触发，防止同一帧内多次接触触发多次重载。
+// Handles Lumi's death: freezes for a brief feedback window, then reloads the current scene. Die() is idempotent.
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerDeath : MonoBehaviour
 {
-    [Tooltip("死亡冻结时长（秒）。冻结期间禁用 PlayerController、速度归零、刚体设 Static。0.3s 对齐 GameConceptDocument 的死亡反馈时长。")]
+    [Tooltip("Freeze duration before reload.")]
     [SerializeField] float freezeDuration = 0.3f;
 
     Rigidbody2D rb;
