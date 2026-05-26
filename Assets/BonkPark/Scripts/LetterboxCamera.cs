@@ -28,6 +28,8 @@ public class LetterboxCamera : MonoBehaviour
     void Apply()
     {
         if (park == null) return;
+        // Editor can repaint with a zero-sized screen (Game View hidden/collapsed); skip until it has real dimensions.
+        if (Screen.width <= 0 || Screen.height <= 0) return;
         lastW = Screen.width;
         lastH = Screen.height;
         lastAspect = park.TargetAspect;
