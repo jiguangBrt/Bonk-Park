@@ -51,6 +51,8 @@ public class BatAI : MonoBehaviour
     int desiredHead;
     int desiredCount;
 
+    float stunRemaining;
+
     // Populates the two curves with sensible defaults on inspector Reset.
     void Reset()
     {
@@ -82,6 +84,14 @@ public class BatAI : MonoBehaviour
     // Per-physics-step steering toward Lumi's current position; desired direction is read from a delay-shifted buffer so direction changes take reactionDelay seconds to register.
     void FixedUpdate()
     {
+        // While stunned, leave velocity alone so the collision impulse carries through as knockback.
+        if (stunRemaining > 0f)
+        {
+            stunRemaining -= Time.fixedDeltaTime;
+            currentSpeed = rb.velocity.magnitude;
+            return;
+        }
+
         if (target == null) return;
 
         Vector2 toTarget = (Vector2)target.position - rb.position;
@@ -120,6 +130,9 @@ public class BatAI : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision)
     {
         var death = collision.gameObject.GetComponent<PlayerDeath>();
-        if (death != null) death.Die();
+        if (death != null) { death.Die(); return; }
+
+        var bonk = collision.gameObject.GetComponent<Bonkable>();
+        if (bonk != null) stunRemaining = bonk.StunDuration;
     }
 }
