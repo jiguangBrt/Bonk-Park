@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d3bd16cf2d6a0d9448120fc54c9cf4c9
+guid: b37e001c777986446a874c7055b70266
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,7 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bat_0
+      name: BatBonk_0
       rect:
         serializedVersion: 2
         x: 0
@@ -137,14 +137,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f3abafd8dbd330870800000000000000
-      internalID: 8647823593821616703
+      spriteID: ae504874f0f505d90800000000000000
+      internalID: -7111079292389030422
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Bat_1
+      name: BatBonk_1
       rect:
         serializedVersion: 2
         x: 256
@@ -158,14 +158,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 144422d8135d9de40800000000000000
-      internalID: 5681806813702538305
+      spriteID: 69cf03b48005c5080800000000000000
+      internalID: -9197388342445933418
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Bat_2
+      name: BatBonk_2
       rect:
         serializedVersion: 2
         x: 512
@@ -179,14 +179,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c63e5cbc14aaea900800000000000000
-      internalID: 697682191857345388
+      spriteID: dc5d5f1e877a1ba80800000000000000
+      internalID: -8452790887968811571
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Bat_3
+      name: BatBonk_3
       rect:
         serializedVersion: 2
         x: 768
@@ -200,14 +200,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 65f95b7530d3c0160800000000000000
-      internalID: 6993031405965254486
+      spriteID: 00769225855b6c730800000000000000
+      internalID: 4019099108414940928
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Bat_4
+      name: BatBonk_4
       rect:
         serializedVersion: 2
         x: 1024
@@ -221,8 +221,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9672337c46b536580800000000000000
-      internalID: -8835117555573905559
+      spriteID: d1d8a54efc3295050800000000000000
+      internalID: 5789698171757825309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BatBonk_5
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 0
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 873329b02400b63a0800000000000000
+      internalID: -6671238139357285512
       vertices: []
       indices: 
       edges: []
@@ -238,11 +259,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Bat_0: 8647823593821616703
-      Bat_1: 5681806813702538305
-      Bat_2: 697682191857345388
-      Bat_3: 6993031405965254486
-      Bat_4: -8835117555573905559
+      BatBonk_0: -7111079292389030422
+      BatBonk_1: -9197388342445933418
+      BatBonk_2: -8452790887968811571
+      BatBonk_3: 4019099108414940928
+      BatBonk_4: 5789698171757825309
+      BatBonk_5: -6671238139357285512
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
