@@ -42,8 +42,18 @@ public class BatAI : MonoBehaviour
     [Tooltip("Initial heading.")]
     [SerializeField] Vector2 initialHeading = Vector2.right;
 
+    [Header("Bonk")]
+
+    [Tooltip("Camera shake duration on bonk, seconds.")]
+    [SerializeField] float shakeDuration = 0.2f;
+
+    [Tooltip("Camera shake magnitude, world units.")]
+    [SerializeField] float shakeMagnitude = 0.15f;
+
     Rigidbody2D rb;
     SpriteRenderer sr;
+    Animator animator;
+    CameraShake cameraShake;
     Vector2 heading;
     float currentSpeed;
 
@@ -52,6 +62,8 @@ public class BatAI : MonoBehaviour
     int desiredCount;
 
     float stunRemaining;
+
+    static readonly int BonkTriggerId = Animator.StringToHash("Bonk");
 
     // Populates the two curves with sensible defaults on inspector Reset.
     void Reset()
@@ -72,6 +84,9 @@ public class BatAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+        var mainCam = Camera.main;
+        if (mainCam != null) cameraShake = mainCam.GetComponent<CameraShake>();
         heading = initialHeading.sqrMagnitude > 0f ? initialHeading.normalized : Vector2.right;
         currentSpeed = 0f;
 
@@ -84,11 +99,11 @@ public class BatAI : MonoBehaviour
     // Per-physics-step steering toward Lumi's current position; desired direction is read from a delay-shifted buffer so direction changes take reactionDelay seconds to register.
     void FixedUpdate()
     {
-        // While stunned, leave velocity alone so the collision impulse carries through as knockback.
         if (stunRemaining > 0f)
         {
             stunRemaining -= Time.fixedDeltaTime;
-            currentSpeed = rb.velocity.magnitude;
+            rb.velocity = Vector2.zero;
+            currentSpeed = 0f;
             return;
         }
 
@@ -133,6 +148,13 @@ public class BatAI : MonoBehaviour
         if (death != null) { death.Die(); return; }
 
         var bonk = collision.gameObject.GetComponent<Bonkable>();
-        if (bonk != null) stunRemaining = bonk.StunDuration;
+        if (bonk != null)
+        {
+            stunRemaining = bonk.StunDuration;
+            rb.velocity = Vector2.zero;
+            currentSpeed = 0f;
+            if (animator != null) animator.SetTrigger(BonkTriggerId);
+            if (cameraShake != null) cameraShake.Shake(shakeDuration, shakeMagnitude);
+        }
     }
 }
