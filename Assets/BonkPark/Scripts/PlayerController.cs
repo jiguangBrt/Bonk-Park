@@ -74,17 +74,31 @@ public class PlayerController : MonoBehaviour
         currentSpeed = Mathf.Clamp(initialSpeed, 0f, maxSpeed);
     }
 
-    // Per-physics-step steering and speed update.
     void FixedUpdate()
     {
         var cam = Camera.main;
         if (cam == null) return;
 
-        Vector2 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 toCursor = mouseWorld - rb.position;
+        Vector2 toCursor = (Vector2)cam.ScreenToWorldPoint(Input.mousePosition) - rb.position;
         float distance = toCursor.magnitude;
 
-        // Parked state uses distance hysteresis plus a speed gate so high-speed overshoot doesn't leave us limping.
+        UpdateParkedState(distance);
+        if (parked)
+        {
+            DecelerateParked();
+            return;
+        }
+
+        Vector2 desired = toCursor / distance;
+        float targetSpeed = ComputeTargetSpeed(distance, desired);
+        UpdateSpeed(targetSpeed);
+        UpdateHeading(desired);
+        WriteVelocityAndRotation();
+    }
+
+    // Distance hysteresis plus a speed gate so high-speed overshoot doesn't leave us limping inside stopRadius.
+    void UpdateParkedState(float distance)
+    {
         if (parked)
         {
             if (currentSpeed < 0.01f && distance > resumeRadius) parked = false;
@@ -93,32 +107,41 @@ public class PlayerController : MonoBehaviour
         {
             parked = true;
         }
+    }
 
-        if (parked)
-        {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, autoBraking * Time.fixedDeltaTime);
-            rb.velocity = heading * currentSpeed;
-            return;
-        }
+    void DecelerateParked()
+    {
+        currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, autoBraking * Time.fixedDeltaTime);
+        rb.velocity = heading * currentSpeed;
+    }
 
-        Vector2 desired = toCursor / distance;
-
-        // Target speed = cap * distance falloff * alignment falloff.
+    // Target speed = cap * distance falloff * alignment falloff.
+    float ComputeTargetSpeed(float distance, Vector2 desired)
+    {
         float distanceFactor = targetSpeedByDistance.Evaluate(Mathf.Clamp01(distance / arrivalRange));
         float alignment = Vector2.Dot(heading, desired);
         float alignmentFactor = speedByAlignment.Evaluate(alignment);
-        float targetSpeed = maxSpeed * distanceFactor * alignmentFactor;
+        return maxSpeed * distanceFactor * alignmentFactor;
+    }
 
-        // Asymmetric ramp: soft acceleration, firm braking.
+    // Asymmetric ramp: soft acceleration, firm braking.
+    void UpdateSpeed(float targetSpeed)
+    {
         float rate = targetSpeed > currentSpeed ? acceleration : autoBraking;
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate * Time.fixedDeltaTime);
+    }
 
-        // Turn rate falls with speed -> large radius at top speed; min turning radius ~ currentSpeed / (turnRate deg-to-rad).
+    // Turn rate falls with speed -> large radius at top speed; min turning radius ~ currentSpeed / (turnRate deg-to-rad).
+    void UpdateHeading(Vector2 desired)
+    {
         float speedT = Mathf.Clamp01(currentSpeed / maxSpeed);
         float turnRate = turnRateBySpeed.Evaluate(speedT);
         float maxRadians = turnRate * Mathf.Deg2Rad * Time.fixedDeltaTime;
         heading = Vector3.RotateTowards(heading, desired, maxRadians, 0f);
+    }
 
+    void WriteVelocityAndRotation()
+    {
         rb.velocity = heading * currentSpeed;
         rb.MoveRotation(Mathf.Atan2(heading.y, heading.x) * Mathf.Rad2Deg + spriteHeadOffsetDeg);
     }
