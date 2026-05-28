@@ -310,8 +310,20 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 256
+  directionSlots: 16
+  dangerLookahead: 2.5
+  dangerFalloff: 2
+  dangerWeight: 1.5
+  headingMomentumBias: 0.15
   flipSpriteByHeading: 1
   initialHeading: {x: 1, y: 0}
+  shakeDuration: 0.2
+  shakeMagnitude: 0.15
+  bonkBounceRetention: 0.3
+  stunDeceleration: 5
 --- !u!95 &4847245478757044349
 Animator:
   serializedVersion: 5

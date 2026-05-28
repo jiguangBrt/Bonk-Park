@@ -318,6 +318,10 @@ PrefabInstance:
       propertyPath: reactionDelay
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: whiskerLength
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3240968678079208785, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: m_GravityScale
       value: 0
@@ -1177,11 +1181,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.76
+      value: -5.14
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.29
+      value: 2.47
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1234,11 +1238,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.14
+      value: 4.76
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.47
+      value: -2.29
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.z
