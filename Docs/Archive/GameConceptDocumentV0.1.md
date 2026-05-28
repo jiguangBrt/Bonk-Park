@@ -1,5 +1,7 @@
 # 🍭 Bonk Park
 
+> Abandoned v0.1 direction; see [../GameConceptDocument.md](../GameConceptDocument.md) for the current design.
+
 > **"The craziest playground where physics is a suggestion and 'Bonking' is the goal!"**
 
 ## 💡 Creative Ownership & Attribution
