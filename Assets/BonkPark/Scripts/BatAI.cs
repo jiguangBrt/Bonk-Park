@@ -32,6 +32,28 @@ public class BatAI : MonoBehaviour
     [Tooltip("Speed to turn rate.")]
     [SerializeField] AnimationCurve turnRateBySpeed;
 
+    [Header("Context Steering")]
+
+    [Tooltip("Layers treated as obstacles for danger raycasts.")]
+    [SerializeField] LayerMask obstacleMask;
+
+    [Tooltip("Number of evenly-spaced sample directions; higher = smoother but more raycasts.")]
+    [Range(8, 32)]
+    [SerializeField] int directionSlots = 16;
+
+    [Tooltip("Obstacle lookahead distance, m. Sets the reaction window for the bonk mechanic.")]
+    [SerializeField] float dangerLookahead = 2.5f;
+
+    [Tooltip("Danger falloff exponent. Higher = only very-close obstacles repel.")]
+    [SerializeField] float dangerFalloff = 2f;
+
+    [Tooltip("Weight of danger vs interest. Higher = more avoidance, lower = more bonking.")]
+    [SerializeField] float dangerWeight = 1.5f;
+
+    [Tooltip("Bonus for slots near current heading; kills jitter between adjacent slots.")]
+    [Range(0f, 0.5f)]
+    [SerializeField] float headingMomentumBias = 0.15f;
+
     [Header("Sprite")]
 
     [Tooltip("Flip sprite by heading.")]
@@ -50,6 +72,13 @@ public class BatAI : MonoBehaviour
     [Tooltip("Camera shake magnitude, world units.")]
     [SerializeField] float shakeMagnitude = 0.15f;
 
+    [Tooltip("Bounce-back velocity fraction after a bonk (0.25-0.35 feels right).")]
+    [Range(0f, 1f)]
+    [SerializeField] float bonkBounceRetention = 0.3f;
+
+    [Tooltip("Deceleration while sliding through stun, m/s^2. Tuned so the slide stops near stun end.")]
+    [SerializeField] float stunDeceleration = 5f;
+
     Rigidbody2D rb;
     SpriteRenderer sr;
     Animator animator;
@@ -62,10 +91,12 @@ public class BatAI : MonoBehaviour
     int desiredCount;
 
     float stunRemaining;
+    // OnCollisionEnter2D fires after the physics solver has already zeroed rb.velocity, so the reflection has to use the velocity from the previous step.
+    Vector2 lastVelocity;
 
     static readonly int BonkTriggerId = Animator.StringToHash("Bonk");
 
-    // Populates the two curves with sensible defaults on inspector Reset.
+    // Populates the curves and obstacle mask with sensible defaults on inspector Reset.
     void Reset()
     {
         speedByAlignment = new AnimationCurve(
@@ -78,6 +109,8 @@ public class BatAI : MonoBehaviour
             new Keyframe(0.5f, 200f),
             new Keyframe(1f, 120f)
         );
+        int obstacleLayer = LayerMask.NameToLayer("Obstacle");
+        if (obstacleLayer >= 0) obstacleMask = 1 << obstacleLayer;
     }
 
     void Awake()
@@ -99,11 +132,13 @@ public class BatAI : MonoBehaviour
     // Per-physics-step steering toward Lumi's current position; desired direction is read from a delay-shifted buffer so direction changes take reactionDelay seconds to register.
     void FixedUpdate()
     {
+        // Stun slide: keep moving along the reflected heading but decelerate so the bat ends the stun in a fresh position with heading already pointing away from the wall.
         if (stunRemaining > 0f)
         {
             stunRemaining -= Time.fixedDeltaTime;
-            rb.velocity = Vector2.zero;
-            currentSpeed = 0f;
+            currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, stunDeceleration * Time.fixedDeltaTime);
+            rb.velocity = heading * currentSpeed;
+            lastVelocity = rb.velocity;
             return;
         }
 
@@ -120,7 +155,36 @@ public class BatAI : MonoBehaviour
 
         int stepsAgo = Mathf.Min(Mathf.RoundToInt(reactionDelay / Time.fixedDeltaTime), desiredCount - 1);
         int readIdx = (desiredHead - 1 - stepsAgo + desiredBuffer.Length) % desiredBuffer.Length;
-        Vector2 desired = desiredBuffer[readIdx];
+        Vector2 delayedDesired = desiredBuffer[readIdx];
+
+        // Context steering: score each evenly-spaced slot by interest (toward delayed desired, plus a heading-momentum bonus) minus danger (raycast proximity). Best-scoring slot becomes the new desired direction.
+        Vector2 desired = delayedDesired;
+        float bestScore = float.NegativeInfinity;
+        float twoPi = Mathf.PI * 2f;
+
+        for (int i = 0; i < directionSlots; i++)
+        {
+            float a = (i / (float)directionSlots) * twoPi;
+            Vector2 slot = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+
+            float interest = Mathf.Max(0f, Vector2.Dot(slot, delayedDesired))
+                           + headingMomentumBias * Mathf.Max(0f, Vector2.Dot(slot, heading));
+
+            float danger = 0f;
+            RaycastHit2D hit = Physics2D.Raycast(rb.position, slot, dangerLookahead, obstacleMask);
+            if (hit.collider != null)
+            {
+                float proximity = 1f - hit.distance / dangerLookahead;
+                danger = Mathf.Pow(proximity, dangerFalloff);
+            }
+
+            float score = interest - danger * dangerWeight;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                desired = slot;
+            }
+        }
 
         // Alignment scales target speed: aligned = full, sideways = slow for tighter turn, reversed = near zero.
         float alignment = Vector2.Dot(heading, desired);
@@ -137,6 +201,7 @@ public class BatAI : MonoBehaviour
         heading = Vector3.RotateTowards(heading, desired, maxRadians, 0f);
 
         rb.velocity = heading * currentSpeed;
+        lastVelocity = rb.velocity;
 
         if (flipSpriteByHeading && sr != null && Mathf.Abs(heading.x) > 0.01f)
             sr.flipX = heading.x < 0f;
@@ -150,9 +215,16 @@ public class BatAI : MonoBehaviour
         var bonk = collision.gameObject.GetComponent<Bonkable>();
         if (bonk != null)
         {
+            // Reflect pre-impact velocity off the contact normal and damp it; flipping heading is the key to breaking the stun-rebonk loop.
+            Vector2 normal = collision.GetContact(0).normal;
+            Vector2 reflected = Vector2.Reflect(lastVelocity, normal) * bonkBounceRetention;
+
+            rb.velocity = reflected;
+            currentSpeed = reflected.magnitude;
+            if (reflected.sqrMagnitude > 0.0001f) heading = reflected.normalized;
+            lastVelocity = reflected;
+
             stunRemaining = bonk.StunDuration;
-            rb.velocity = Vector2.zero;
-            currentSpeed = 0f;
             if (animator != null) animator.SetTrigger(BonkTriggerId);
             if (cameraShake != null) cameraShake.Shake(shakeDuration, shakeMagnitude);
         }
