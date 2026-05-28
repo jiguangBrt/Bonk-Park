@@ -316,7 +316,7 @@ PrefabInstance:
       objectReference: {fileID: 1449090959}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: reactionDelay
-      value: 0.1
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: whiskerLength

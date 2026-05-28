@@ -25,9 +25,19 @@ public class CameraShake : MonoBehaviour
     {
         if (remaining <= 0f)
         {
-            if (transform.localPosition != basePos) transform.localPosition = basePos;
+            RestoreBasePosition();
             return;
         }
+        ApplyShakeOffset();
+    }
+
+    void RestoreBasePosition()
+    {
+        if (transform.localPosition != basePos) transform.localPosition = basePos;
+    }
+
+    void ApplyShakeOffset()
+    {
         remaining -= Time.deltaTime;
         float t = Mathf.Clamp01(remaining / duration);
         Vector2 offset = Random.insideUnitCircle * (magnitude * t);

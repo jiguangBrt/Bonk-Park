@@ -21,8 +21,13 @@ public class LetterboxCamera : MonoBehaviour
     void Update()
     {
         if (park == null) return;
-        if (Screen.width == lastW && Screen.height == lastH && park.TargetAspect == lastAspect) return;
+        if (!ViewportChanged()) return;
         Apply();
+    }
+
+    bool ViewportChanged()
+    {
+        return Screen.width != lastW || Screen.height != lastH || park.TargetAspect != lastAspect;
     }
 
     void Apply()
