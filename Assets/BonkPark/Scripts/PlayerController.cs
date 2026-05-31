@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] AnimationCurve turnRateBySpeed;
 
     [Tooltip("Sprite heading offset, deg.")]
-    [SerializeField] float spriteHeadOffsetDeg = -90f;
+    [SerializeField] float spriteHeadOffsetDeg = -180f;
 
     [Header("Init")]
 
