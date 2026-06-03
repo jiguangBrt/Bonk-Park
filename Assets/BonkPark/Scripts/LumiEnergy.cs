@@ -34,7 +34,14 @@ public class LumiEnergy : MonoBehaviour
     [Tooltip("Pulse depth, fraction of base intensity.")]
     [SerializeField] float breathAmount = 0.3f;
 
+    [Tooltip("Ignition flare strength, fraction of base intensity.")]
+    [SerializeField] float flashStrength = 2.5f;
+
+    [Tooltip("Ignition flare decay, seconds.")]
+    [SerializeField] float flashDuration = 0.7f;
+
     float[] baseIntensities;
+    float flashRemaining;
 
     public float Normalized => energy / maxEnergy;
 
@@ -64,6 +71,7 @@ public class LumiEnergy : MonoBehaviour
             return;
         }
         energy = Mathf.Max(0f, energy - drainRate * Time.deltaTime);
+        if (flashRemaining > 0f) flashRemaining = Mathf.Max(0f, flashRemaining - Time.deltaTime);
         ApplyGlow();
     }
 
@@ -79,17 +87,24 @@ public class LumiEnergy : MonoBehaviour
         energy = Mathf.Min(maxEnergy, energy + amount);
     }
 
+    // One-shot ignition flare for the intro handoff; layered over the breath pulse and decays back to base.
+    public void Flash()
+    {
+        flashRemaining = flashDuration;
+    }
+
     void ApplyGlow()
     {
         if (glowLights == null) return;
         Color c = Color.Lerp(lowColor, highColor, Normalized);
         float breath = 1f + breathAmount * Mathf.Sin(Time.time * breathSpeed);
+        float flare = flashDuration > 0f ? 1f + flashStrength * (flashRemaining / flashDuration) : 1f;
         for (int i = 0; i < glowLights.Length; i++)
         {
             var glow = glowLights[i];
             if (glow == null) continue;
             glow.color = c;
-            glow.intensity = baseIntensities[i] * breath;
+            glow.intensity = baseIntensities[i] * breath * flare;
         }
     }
 
