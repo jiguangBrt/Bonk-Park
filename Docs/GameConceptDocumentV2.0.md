@@ -1,5 +1,7 @@
 # BONK-PARK — Game Concept Document (v2.0)
 
+> Superseded by [v3.0](GameConceptDocumentV3.0.md). Kept for context.
+
 Supersedes [v1.0](GameConceptDocumentV1.0.md). The story, scoring, and core loop are unchanged; the AI model and player control have been reworked in light of what was actually built. Sections present in v1.0 but omitted here (difficulty curve, art direction, five-week plan, Unity technical plan, repository structure) are still planned and live in v1.0 or in the README.
 
 ## Game Title

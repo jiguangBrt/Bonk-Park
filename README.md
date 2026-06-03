@@ -3,7 +3,8 @@
 A 2D top-down pixel art style chase game - guiding the firefly Lim to evade the bat's pursuit, causing it to collide with the obstacles in the park, thereby obtaining a longer survival time.
 
 ## Docs
-- [Game Concept Document v2.0](Docs/GameConceptDocumentV2.0.md) — current design
+- [Game Concept Document v3.0](Docs/GameConceptDocumentV3.0.md) — current design
+- [Game Concept Document v2.0](Docs/GameConceptDocumentV2.0.md) — superseded, kept for context
 - [Game Concept Document v1.0](Docs/GameConceptDocumentV1.0.md) — earlier design, superseded but kept for context
 - [Development Plan](Docs/DevelopmentPlan.md)
 - [Report Outline](Docs/Report-Outline.md)
@@ -55,6 +56,7 @@ Bonk-Park/
 │   ├── ThirdParty/           — Any purchased / external packages (none bundled yet)
 │   └── TextMesh Pro/         — Unity package import, untouched
 ├── Docs/                     — Design docs and process artefacts
+│   ├── GameConceptDocumentV3.0.md
 │   ├── GameConceptDocumentV2.0.md
 │   ├── GameConceptDocumentV1.0.md
 │   ├── DevelopmentPlan.md
@@ -65,7 +67,7 @@ Bonk-Park/
 └── .github/                  — Issue / PR templates, workflow config
 ```
 
-`Assets/BonkPark/Scripts/` is currently flat — `Player/`, `AI/`, and `Management/` subfolders will be split out once the script count grows. Audio and UI folders will be added when those systems land (see [v2.0 doc](Docs/GameConceptDocumentV2.0.md)).
+`Assets/BonkPark/Scripts/` is currently flat — `Player/`, `AI/`, and `Management/` subfolders will be split out once the script count grows. Audio and UI folders will be added when those systems land (see [v3.0 doc](Docs/GameConceptDocumentV3.0.md)).
 
 ## Credits
 
