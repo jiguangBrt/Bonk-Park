@@ -387,20 +387,27 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 918373e1cedc0ba41bb253af800ae76b, type: 3}
   lines:
   - A firefly's first memory is always the same.
-  - A light, far off, going out.
+  - A light slowly went out.
   - Lumi woke as the brightest of the year,
-  - and burned as if the summer would never end.
-  - Tonight the others seal their light into the seeds, to wake again come spring.
-  - Mine is too far gone to follow.
-  - But I know every tree, every lamp, every turn of this park.
+  - and played as if summer would never end.
+  - Tonight the others seal their light into the seeds.
+  - The ritual that lets them be reborn next spring.
+  - Mine is too faint to do so.
+  - But I know every turn of this park.
   - Tonight, I stay.
+  linesPerPanel:
+  - 2
+  - 2
+  - 3
+  - 2
   revealIn: 1.4
   revealOut: 1.1
   lineHold: 2.4
+  finalLineHold: 4
   textFadeIn: 1.1
   textFadeOut: 0.6
-  batBeat: 1.8
-  igniteDuration: 1.8
+  batBeat: 4
+  igniteDuration: 2
   breathSpeed: 3
   breathAmount: 0.2
   softness: 0.6
@@ -411,7 +418,7 @@ MonoBehaviour:
   rootGroup: {fileID: 959618322}
   batEyes: {fileID: 426975872}
   narration: {fileID: 1641593813}
-  forceReplayInEditor: 0
+  forceReplayInEditor: 1
 --- !u!225 &959618322
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1990,7 +1997,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 232}
+  m_AnchoredPosition: {x: 0, y: 168}
   m_SizeDelta: {x: 1120, y: 630}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1816879870
