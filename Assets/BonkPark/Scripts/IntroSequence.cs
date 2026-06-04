@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 // First-run opening storyboard on a black screen: each picture warms up from its centre outward, its two narration lines
@@ -24,7 +25,9 @@ public class IntroSequence : MonoBehaviour
     [SerializeField] float textFadeIn = 1.1f;
     [SerializeField] float textFadeOut = 0.6f;
     [SerializeField] float batBeat = 1.8f;
-    [SerializeField] float handoffFade = 1.3f;
+
+    [Tooltip("How long the scene lights swell up as control hands over.")]
+    [SerializeField] float igniteDuration = 1.8f;
 
     [Header("Firefly breath")]
 
@@ -170,7 +173,8 @@ public class IntroSequence : MonoBehaviour
         yield return Fade(batEyes, batEyes != null ? batEyes.alpha : 0f, 0f, batBeat * 0.3f);
     }
 
-    // Dim the last picture, then dissolve the black screen to reveal the live game as Lumi ignites.
+    // Dim the last picture, then let the whole scene warm up from black — the global light and Lumi swelling
+    // together — before the bat is set loose. The player has control the moment the lights start to rise.
     IEnumerator HandoffRoutine()
     {
         if (currentProgress > 0.001f)
@@ -179,11 +183,34 @@ public class IntroSequence : MonoBehaviour
         narration.alpha = 0f;
         if (batEyes != null) batEyes.alpha = 0f;
 
-        if (lumi != null) { lumi.enabled = true; lumi.Flash(); }
-        if (player != null) player.enabled = true;
-        if (batAI != null) batAI.enabled = true;
+        // Drop the picture so the reveal is a clean full-screen dissolve, not a lingering dark rectangle.
+        if (panelImage != null) panelImage.enabled = false;
 
-        yield return Fade(rootGroup, 1f, 0f, handoffFade);
+        // Find the scene's global light and take everything that should warm up down to black.
+        Light2D global = null;
+        foreach (var l in FindObjectsOfType<Light2D>())
+            if (l.lightType == Light2D.LightType.Global) { global = l; break; }
+        float globalBase = global != null ? global.intensity : 0f;
+        if (global != null) global.intensity = 0f;
+
+        if (lumi != null) { lumi.enabled = true; lumi.Ignite(igniteDuration); }
+        if (player != null) player.enabled = true;
+
+        float t = 0f;
+        while (t < igniteDuration)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.SmoothStep(0f, 1f, t / igniteDuration);
+            if (rootGroup != null) rootGroup.alpha = 1f - Mathf.Clamp01(k * 2f); // overlay clears over the first half
+            if (global != null) global.intensity = globalBase * k;
+            yield return null;
+        }
+
+        if (rootGroup != null) rootGroup.alpha = 0f;
+        if (global != null) global.intensity = globalBase;
+
+        // Scene is fully lit — now the chase begins.
+        if (batAI != null) batAI.enabled = true;
 
         PlayerPrefs.SetInt(SeenKey, 1);
         PlayerPrefs.Save();
