@@ -14,6 +14,10 @@ public class LumiEnergy : MonoBehaviour
     [Tooltip("Passive energy drain, per second.")]
     [SerializeField] float drainRate = 5f;
 
+    [Tooltip("Below this fraction of max, Lumi slows and the glow flickers red.")]
+    [Range(0f, 1f)]
+    [SerializeField] float lowLightThreshold = 0.3f;
+
     [Tooltip("Current energy. Drag at runtime to preview the glow.")]
     [SerializeField] float energy = 100f;
 
@@ -34,12 +38,25 @@ public class LumiEnergy : MonoBehaviour
     [Tooltip("Pulse depth, fraction of base intensity.")]
     [SerializeField] float breathAmount = 0.3f;
 
+    [Tooltip("Extra glow shrink at empty light, fraction of base intensity.")]
+    [SerializeField] float lowLightDim = 0.4f;
+
+    [Tooltip("Flicker speed when light is low.")]
+    [SerializeField] float lowLightFlickerSpeed = 14f;
+
+    [Tooltip("Flicker depth when light is low, fraction of base intensity.")]
+    [SerializeField] float lowLightFlickerAmount = 0.35f;
+
     float[] baseIntensities;
     float igniteDuration;
     float igniteElapsed;
     bool igniting;
 
     public float Normalized => energy / maxEnergy;
+    public float Energy => energy;
+    public float MaxEnergy => maxEnergy;
+    public float LowLightThreshold => lowLightThreshold;
+    public bool IsLowLight => Normalized < lowLightThreshold;
 
     void Awake()
     {
@@ -99,15 +116,28 @@ public class LumiEnergy : MonoBehaviour
     {
         if (glowLights == null) return;
         Color c = Color.Lerp(lowColor, highColor, Normalized);
-        float breath = 1f + breathAmount * Mathf.Sin(Time.time * breathSpeed);
         float ignite = igniting ? Mathf.SmoothStep(0f, 1f, igniteElapsed / igniteDuration) : 1f;
+        float pulse = GlowPulse();
         for (int i = 0; i < glowLights.Length; i++)
         {
             var glow = glowLights[i];
             if (glow == null) continue;
             glow.color = c;
-            glow.intensity = baseIntensities[i] * breath * ignite;
+            glow.intensity = baseIntensities[i] * pulse * ignite;
         }
+    }
+
+    // Gentle sine breath at full charge; below the threshold it crossfades into a faster, noisier
+    // flicker and the whole glow dims, so a starving firefly reads as panic.
+    float GlowPulse()
+    {
+        float breath = 1f + breathAmount * Mathf.Sin(Time.time * breathSpeed);
+        if (Normalized >= lowLightThreshold) return breath;
+
+        float starve = 1f - Normalized / lowLightThreshold;
+        float noise = Mathf.PerlinNoise(Time.time * lowLightFlickerSpeed, 0f) * 2f - 1f;
+        float flicker = 1f + lowLightFlickerAmount * noise;
+        return Mathf.Lerp(breath, flicker, starve) * (1f - lowLightDim * starve);
     }
 
     // Edit-mode preview: keep both lights matching highColor (colour only, intensity untouched) so the glow can be tuned in the Scene view.
