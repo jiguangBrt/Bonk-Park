@@ -665,7 +665,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: dangerWeight
-      value: 3
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: dangerFalloff
@@ -900,6 +900,58 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1292136374
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1292136376}
+  - component: {fileID: 1292136375}
+  m_Layer: 0
+  m_Name: GlowMoteSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1292136375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292136374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097abe50f975e604aab1d54d9fa76ac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  motePrefab: {fileID: 1077962950060469598, guid: 936daacf1f6319f44a25d82019adcdfe, type: 3}
+  park: {fileID: 1694238043}
+  lumi: {fileID: 1449090963}
+  population: 3
+  spawnInterval: 5
+  edgeMargin: 1
+  playerClearance: 2
+  minMoteSpacing: 5
+--- !u!4 &1292136376
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292136374}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1338438706
 GameObject:
   m_ObjectHideFlags: 0
@@ -1252,6 +1304,7 @@ GameObject:
   - component: {fileID: 1449090965}
   - component: {fileID: 1449090964}
   - component: {fileID: 1449090963}
+  - component: {fileID: 1449090966}
   m_Layer: 0
   m_Name: Lumi
   m_TagString: Untagged
@@ -1368,6 +1421,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   spriteHeadOffsetDeg: -180
+  lowLightSpeedFloor: 0.25
+  lowLightFalloff: 2
   initialHeading: {x: 0, y: 1}
   initialSpeed: 0
 --- !u!50 &1449090957
@@ -1598,7 +1653,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxEnergy: 100
-  drainRate: 20
+  drainRate: 5
+  lowLightThreshold: 0.3
   energy: 100
   glowLights:
   - {fileID: 48966288}
@@ -1607,6 +1663,9 @@ MonoBehaviour:
   lowColor: {r: 0.3962264, g: 0.0064955144, b: 0, a: 1}
   breathSpeed: 2
   breathAmount: 0.9
+  lowLightDim: 0.4
+  lowLightFlickerSpeed: 14
+  lowLightFlickerAmount: 0.35
 --- !u!114 &1449090964
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1642,6 +1701,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1449090966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449090954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b478987766ec9f48bf0519a0b078480, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  show: 1
 --- !u!1 &1641593812
 GameObject:
   m_ObjectHideFlags: 0
@@ -2232,3 +2304,4 @@ SceneRoots:
   - {fileID: 2586660006605408019}
   - {fileID: 1816879870}
   - {fileID: 959618326}
+  - {fileID: 1292136376}

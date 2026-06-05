@@ -38,6 +38,15 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Sprite heading offset, deg.")]
     [SerializeField] float spriteHeadOffsetDeg = -180f;
 
+    [Header("Low Light")]
+
+    [Tooltip("Slowest speed fraction at empty light. Never zero so Lumi can still crawl clear.")]
+    [Range(0f, 1f)]
+    [SerializeField] float lowLightSpeedFloor = 0.25f;
+
+    [Tooltip("Steepness of the low-light slowdown. 2 = quadratic.")]
+    [SerializeField] float lowLightFalloff = 2f;
+
     [Header("Init")]
 
     [Tooltip("Initial heading.")]
@@ -47,6 +56,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float initialSpeed = 0f;
 
     Rigidbody2D rb;
+    LumiEnergy energy;
     Vector2 heading;
     float currentSpeed;
     bool parked;
@@ -70,6 +80,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        energy = GetComponent<LumiEnergy>();
         heading = initialHeading.sqrMagnitude > 0f ? initialHeading.normalized : Vector2.up;
         currentSpeed = Mathf.Clamp(initialSpeed, 0f, maxSpeed);
     }
@@ -121,7 +132,16 @@ public class PlayerController : MonoBehaviour
         float distanceFactor = targetSpeedByDistance.Evaluate(Mathf.Clamp01(distance / arrivalRange));
         float alignment = Vector2.Dot(heading, desired);
         float alignmentFactor = speedByAlignment.Evaluate(alignment);
-        return maxSpeed * distanceFactor * alignmentFactor;
+        return maxSpeed * distanceFactor * alignmentFactor * LowLightSpeedMultiplier();
+    }
+
+    // Full speed above the low-light threshold; below it, speed falls along (light/threshold)^falloff
+    // toward a floor so a dimming Lumi crawls but never freezes.
+    float LowLightSpeedMultiplier()
+    {
+        if (energy == null || !energy.IsLowLight) return 1f;
+        float t = Mathf.Clamp01(energy.Normalized / energy.LowLightThreshold);
+        return Mathf.Lerp(lowLightSpeedFloor, 1f, Mathf.Pow(t, lowLightFalloff));
     }
 
     // Asymmetric ramp: soft acceleration, firm braking.
