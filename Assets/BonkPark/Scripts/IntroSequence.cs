@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
-// First-run opening storyboard on a black screen: each picture warms up from its centre outward, its two narration lines
-// glow in and out one at a time, then it dims back to black before the next. The final picture hands control to the live
-// game as Lumi's light ignites. Any key skips straight to the handoff.
+// First-run opening storyboard on a black screen. Each picture warms up from its centre outward; its lines glow in
+// one at a time, each spoken by its own short clip, holding at full glow while the voice carries it and breathing for
+// a beat on either side before the next. Between movements the picture dims and the next blooms; before the closing
+// picture two red eyes surface in the dark. The final line hands control to the live game as the scene lights ignite.
+// Any key skips straight to the handoff.
 public class IntroSequence : MonoBehaviour
 {
     [Header("Content")]
@@ -17,36 +19,51 @@ public class IntroSequence : MonoBehaviour
     [Tooltip("Narration lines, read in order and dealt out across the pictures by linesPerPanel.")]
     [TextArea] [SerializeField] string[] lines;
 
+    [Tooltip("One spoken clip per line, in the same order as lines.")]
+    [SerializeField] AudioClip[] lineClips;
+
     [Tooltip("How many narration lines each picture carries, in order; should sum to lines.Length.")]
-    [SerializeField] int[] linesPerPanel = { 2, 2, 2, 2 };
+    [SerializeField] int[] linesPerPanel = { 2, 2, 3, 2 };
 
-    [Header("Timing, seconds")]
+    [Header("Picture, seconds")]
 
-    [SerializeField] float revealIn = 1.4f;
-    [SerializeField] float revealOut = 1.1f;
-    [SerializeField] float lineHold = 2.4f;
+    [SerializeField] float revealIn = 1.5f;
+    [SerializeField] float revealOut = 1.2f;
 
-    [Tooltip("Longer hold for the closing line as control hands over.")]
-    [SerializeField] float finalLineHold = 4f;
-    [SerializeField] float textFadeIn = 1.1f;
-    [SerializeField] float textFadeOut = 0.6f;
-    [SerializeField] float batBeat = 1.8f;
+    [Tooltip("Per-pixel ramp width of the warm-up; larger = softer, slower swell.")]
+    [SerializeField] float softness = 0.6f;
 
-    [Tooltip("How long the scene lights swell up as control hands over.")]
-    [SerializeField] float igniteDuration = 1.8f;
+    [Header("Line pacing, seconds")]
+
+    [SerializeField] float textFadeIn = 1.2f;
+    [SerializeField] float textFadeOut = 1f;
+
+    [Tooltip("Held breath after a line has appeared, before its voice speaks.")]
+    [SerializeField] float voiceLead = 0.4f;
+
+    [Tooltip("How long a line lingers at full glow once the voice has finished.")]
+    [SerializeField] float breathAfter = 1f;
+
+    [Tooltip("Silent rest on black between one line and the next.")]
+    [SerializeField] float linePause = 1f;
 
     [Header("Firefly breath")]
 
-    [Tooltip("Narration pulse speed; match LumiEnergy.")]
-    [SerializeField] float breathSpeed = 3f;
+    [Tooltip("Narration pulse speed; lower is slower.")]
+    [SerializeField] float breathSpeed = 2.2f;
 
     [Tooltip("Narration pulse depth.")]
-    [SerializeField] float breathAmount = 0.2f;
+    [SerializeField] float breathAmount = 0.22f;
 
-    [Header("Reveal")]
+    [Header("Handoff, seconds")]
 
-    [Tooltip("Per-pixel ramp width of the warm-up; larger = softer, slower swell.")]
-    [SerializeField] float softness = 0.45f;
+    [Tooltip("Picture index whose entrance the bat's eyes precede.")]
+    [SerializeField] int eyesBeforePanel = 3;
+
+    [SerializeField] float batBeat = 2.8f;
+
+    [Tooltip("How long the scene lights swell up as control hands over.")]
+    [SerializeField] float igniteDuration = 2.5f;
 
     [Header("Scene refs")]
 
@@ -57,6 +74,7 @@ public class IntroSequence : MonoBehaviour
     [SerializeField] CanvasGroup rootGroup;
     [SerializeField] CanvasGroup batEyes;
     [SerializeField] TMP_Text narration;
+    [SerializeField] AudioSource narrationSource;
 
 #if UNITY_EDITOR
     [Header("Editor")]
@@ -114,62 +132,97 @@ public class IntroSequence : MonoBehaviour
         mat.SetFloat("_Progress", p);
     }
 
+    float Breath()
+    {
+        return 0.8f + breathAmount * Mathf.Sin(Time.time * breathSpeed);
+    }
+
     IEnumerator PlayRoutine()
     {
+        panelImage.sprite = panels[0];
+        panelImage.color = Color.white;
+        yield return RevealRoutine(0f, 1f, revealIn);
+
         int line = 0;
         for (int i = 0; i < panels.Length; i++)
         {
             int count = i < linesPerPanel.Length ? linesPerPanel[i] : 0;
-            yield return PanelRoutine(i, line, count);
+
+            if (i > 0)
+            {
+                yield return TransitionRoutine(i);
+                if (skipRequested) break;
+            }
+
+            for (int n = 0; n < count; n++)
+            {
+                yield return LineRoutine(line + n);
+                if (skipRequested) break;
+            }
+
             line += count;
             if (skipRequested) break;
-            if (i == 2) { yield return BatEyesRoutine(); if (skipRequested) break; }
         }
+
         yield return HandoffRoutine();
     }
 
-    IEnumerator PanelRoutine(int i, int firstLine, int count)
+    // Dim the picture and bloom the next. Before the closing picture the bat's eyes surface in the dark first.
+    IEnumerator TransitionRoutine(int panel)
     {
-        panelImage.sprite = panels[i];
-        panelImage.color = Color.white;
-        narration.alpha = 0f;
-
-        yield return RevealRoutine(0f, 1f, revealIn);
+        yield return RevealRoutine(currentProgress, 0f, revealOut);
         if (skipRequested) yield break;
 
-        for (int n = 0; n < count; n++)
+        if (panel == eyesBeforePanel)
         {
-            int index = firstLine + n;
-            float hold = index == lines.Length - 1 ? finalLineHold : lineHold;
-            yield return LineRoutine(index, hold);
+            yield return BatEyesRoutine();
             if (skipRequested) yield break;
         }
 
-        yield return RevealRoutine(currentProgress, 0f, revealOut);
+        panelImage.sprite = panels[panel];
+        panelImage.color = Color.white;
+        yield return RevealRoutine(0f, 1f, revealIn);
     }
 
-    // One narration line glows in (then breathes), holds, and fades back out.
-    IEnumerator LineRoutine(int index, float hold)
+    // One line glows in, takes a breath, is spoken, lingers, then fades and rests before the next.
+    IEnumerator LineRoutine(int index)
     {
         narration.text = index < lines.Length ? lines[index] : "";
         narration.alpha = 0f;
 
         float t = 0f;
-        float total = textFadeIn + hold;
-        while (t < total)
+        while (t < textFadeIn)
         {
             t += Time.deltaTime;
-            float fade = textFadeIn > 0f ? Mathf.Clamp01(t / textFadeIn) : 1f;
-            float breath = 0.8f + breathAmount * Mathf.Sin(Time.time * breathSpeed);
-            narration.alpha = fade * breath;
+            narration.alpha = Mathf.Clamp01(t / textFadeIn) * Breath();
             if (skipRequested) yield break;
             yield return null;
         }
 
+        yield return BreathHold(voiceLead);
+        if (skipRequested) yield break;
+
+        AudioClip clip = index < lineClips.Length ? lineClips[index] : null;
+        if (narrationSource != null && clip != null)
+        {
+            narrationSource.clip = clip;
+            narrationSource.Play();
+            while (narrationSource.isPlaying)
+            {
+                narration.alpha = Breath();
+                if (skipRequested) { narrationSource.Stop(); yield break; }
+                yield return null;
+            }
+        }
+
+        yield return BreathHold(breathAfter);
+        if (skipRequested) yield break;
+
         yield return FadeNarration(narration.alpha, 0f, textFadeOut);
+        yield return Rest(linePause);
     }
 
-    // Two faint red eyes surface in the black before the bat picture.
+    // Two faint red eyes surface in the black before the closing picture.
     IEnumerator BatEyesRoutine()
     {
         narration.alpha = 0f;
@@ -189,6 +242,8 @@ public class IntroSequence : MonoBehaviour
     // together — before the bat is set loose. The player has control the moment the lights start to rise.
     IEnumerator HandoffRoutine()
     {
+        if (narrationSource != null) narrationSource.Stop();
+
         if (currentProgress > 0.001f)
             yield return RevealRoutine(currentProgress, 0f, revealOut * 0.6f);
 
@@ -230,6 +285,29 @@ public class IntroSequence : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    IEnumerator BreathHold(float duration)
+    {
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            narration.alpha = Breath();
+            if (skipRequested) yield break;
+            yield return null;
+        }
+    }
+
+    IEnumerator Rest(float duration)
+    {
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            if (skipRequested) yield break;
+            yield return null;
+        }
+    }
+
     IEnumerator RevealRoutine(float from, float to, float duration)
     {
         float t = 0f;
@@ -237,6 +315,7 @@ public class IntroSequence : MonoBehaviour
         {
             t += Time.deltaTime;
             SetProgress(Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, t / duration)));
+            if (skipRequested) break;
             yield return null;
         }
         SetProgress(to);
