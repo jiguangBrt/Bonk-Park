@@ -35,6 +35,9 @@ public class LumiEnergy : MonoBehaviour
     [SerializeField] float breathAmount = 0.3f;
 
     float[] baseIntensities;
+    float igniteDuration;
+    float igniteElapsed;
+    bool igniting;
 
     public float Normalized => energy / maxEnergy;
 
@@ -64,6 +67,11 @@ public class LumiEnergy : MonoBehaviour
             return;
         }
         energy = Mathf.Max(0f, energy - drainRate * Time.deltaTime);
+        if (igniting)
+        {
+            igniteElapsed += Time.deltaTime;
+            if (igniteElapsed >= igniteDuration) igniting = false;
+        }
         ApplyGlow();
     }
 
@@ -79,17 +87,26 @@ public class LumiEnergy : MonoBehaviour
         energy = Mathf.Min(maxEnergy, energy + amount);
     }
 
+    // Ignition ramp for the intro handoff; the glow swells from dark to full over the given duration.
+    public void Ignite(float duration)
+    {
+        igniteDuration = Mathf.Max(0.0001f, duration);
+        igniteElapsed = 0f;
+        igniting = true;
+    }
+
     void ApplyGlow()
     {
         if (glowLights == null) return;
         Color c = Color.Lerp(lowColor, highColor, Normalized);
         float breath = 1f + breathAmount * Mathf.Sin(Time.time * breathSpeed);
+        float ignite = igniting ? Mathf.SmoothStep(0f, 1f, igniteElapsed / igniteDuration) : 1f;
         for (int i = 0; i < glowLights.Length; i++)
         {
             var glow = glowLights[i];
             if (glow == null) continue;
             glow.color = c;
-            glow.intensity = baseIntensities[i] * breath;
+            glow.intensity = baseIntensities[i] * breath * ignite;
         }
     }
 
