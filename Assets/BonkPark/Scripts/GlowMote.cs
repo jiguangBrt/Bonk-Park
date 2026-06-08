@@ -22,11 +22,25 @@ public class GlowMote : MonoBehaviour
     [Tooltip("Absorbed once this close, m.")]
     [SerializeField] float pickupRadius = 0.3f;
 
+    [Tooltip("Ignore absorb radius and home to Lumi from any distance.")]
+    [SerializeField] bool homesFromAnywhere = false;
+
+    [Tooltip("Seconds the light bursts outward before it starts homing. 0 = home at once.")]
+    [SerializeField] float burstDuration = 0f;
+
+    [Tooltip("Outward speed at the start of the burst, m/s.")]
+    [SerializeField] float burstSpeed = 6f;
+
+    [Tooltip("How fast the burst coasts to a stop, m/s^2.")]
+    [SerializeField] float burstDrag = 12f;
+
     LumiEnergy lumi;
     Transform player;
     Vector2 arenaCenter;
     Vector2 arenaHalf;
     float noiseSeed;
+    float burstRemaining;
+    Vector2 burstVelocity;
     bool collected;
 
     void Awake()
@@ -43,18 +57,34 @@ public class GlowMote : MonoBehaviour
         arenaHalf = size * 0.5f;
     }
 
+    // Bonk light kicks outward, coasts to a stop, then falls through to homing.
+    public void LaunchBurst(Vector2 direction)
+    {
+        burstRemaining = burstDuration;
+        burstVelocity = direction.normalized * burstSpeed;
+    }
+
     void FixedUpdate()
     {
         if (collected) return;
 
         Vector2 pos = transform.position;
+
+        if (burstRemaining > 0f)
+        {
+            burstRemaining -= Time.fixedDeltaTime;
+            burstVelocity = Vector2.MoveTowards(burstVelocity, Vector2.zero, burstDrag * Time.fixedDeltaTime);
+            transform.position = ClampToArena(pos + burstVelocity * Time.fixedDeltaTime);
+            return;
+        }
+
         float dist = player != null ? Vector2.Distance(pos, player.position) : float.MaxValue;
 
-        if (dist <= absorbRadius)
+        if (homesFromAnywhere || dist <= absorbRadius)
         {
             if (dist <= pickupRadius) { Collect(); return; }
-            // Home in, accelerating as it nears, so the mote visibly snaps to Lumi.
-            float speed = Mathf.Lerp(driftSpeed, absorbSpeed, 1f - dist / absorbRadius);
+            // Bonk light streaks straight in from anywhere; an idle mote eases in as it nears.
+            float speed = homesFromAnywhere ? absorbSpeed : Mathf.Lerp(driftSpeed, absorbSpeed, 1f - dist / absorbRadius);
             transform.position = Vector2.MoveTowards(pos, player.position, speed * Time.fixedDeltaTime);
         }
         else
