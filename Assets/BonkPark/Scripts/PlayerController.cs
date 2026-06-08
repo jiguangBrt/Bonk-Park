@@ -47,6 +47,23 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Steepness of the low-light slowdown. 2 = quadratic.")]
     [SerializeField] float lowLightFalloff = 2f;
 
+    [Header("Dash")]
+
+    [Tooltip("Dash travel distance, m.")]
+    [SerializeField] float dashDistance = 4f;
+
+    [Tooltip("Dash travel time, s. Lower is snappier; very low reads as a blink.")]
+    [SerializeField] float dashDuration = 0.12f;
+
+    [Tooltip("Speed Lumi keeps the moment the dash ends, m/s.")]
+    [SerializeField] float dashEndSpeed = 10f;
+
+    [Tooltip("Light spent per dash.")]
+    [SerializeField] float dashCost = 20f;
+
+    [Tooltip("Dash cooldown, s.")]
+    [SerializeField] float dashCooldown = 0.8f;
+
     [Header("Init")]
 
     [Tooltip("Initial heading.")]
@@ -60,6 +77,11 @@ public class PlayerController : MonoBehaviour
     Vector2 heading;
     float currentSpeed;
     bool parked;
+    bool dashQueued;
+    float dashCooldownTimer;
+    bool dashing;
+    float dashTimer;
+    Vector2 dashDir;
 
     // Populates the two curves with sensible defaults on inspector Reset.
     void Reset()
@@ -85,6 +107,12 @@ public class PlayerController : MonoBehaviour
         currentSpeed = Mathf.Clamp(initialSpeed, 0f, maxSpeed);
     }
 
+    // Left click is a discrete press; read it in Update so a click landing between physics steps isn't dropped.
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0)) dashQueued = true;
+    }
+
     void FixedUpdate()
     {
         var cam = Camera.main;
@@ -92,6 +120,21 @@ public class PlayerController : MonoBehaviour
 
         Vector2 toCursor = (Vector2)cam.ScreenToWorldPoint(Input.mousePosition) - rb.position;
         float distance = toCursor.magnitude;
+
+        dashCooldownTimer = Mathf.Max(0f, dashCooldownTimer - Time.fixedDeltaTime);
+
+        if (dashQueued)
+        {
+            dashQueued = false;
+            if (!dashing && dashCooldownTimer <= 0f && (energy == null || !energy.IsLowLight) && distance > 0.0001f)
+                StartDash(toCursor / distance);
+        }
+
+        if (dashing)
+        {
+            TickDash();
+            return;
+        }
 
         UpdateParkedState(distance);
         if (parked)
@@ -124,6 +167,38 @@ public class PlayerController : MonoBehaviour
     {
         currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, autoBraking * Time.fixedDeltaTime);
         rb.velocity = heading * currentSpeed;
+    }
+
+    // Fixed-distance dash, always toward the cursor: snaps heading to the cursor and covers dashDistance over
+    // dashDuration, so distance is a direct dial rather than a side effect of speed. Velocity-driven, so walls still stop it.
+    void StartDash(Vector2 dir)
+    {
+        dashDir = dir;
+        heading = dir;
+        dashing = true;
+        dashTimer = dashDuration;
+        parked = false;
+
+        if (energy != null)
+        {
+            energy.Consume(dashCost);
+            energy.Flare();
+        }
+        dashCooldownTimer = dashCooldown;
+    }
+
+    void TickDash()
+    {
+        float speed = dashDistance / Mathf.Max(0.0001f, dashDuration);
+        rb.velocity = dashDir * speed;
+        rb.MoveRotation(Mathf.Atan2(dashDir.y, dashDir.x) * Mathf.Rad2Deg + spriteHeadOffsetDeg);
+
+        dashTimer -= Time.fixedDeltaTime;
+        if (dashTimer <= 0f)
+        {
+            dashing = false;
+            currentSpeed = dashEndSpeed;
+        }
     }
 
     // Target speed = cap * distance falloff * alignment falloff.

@@ -47,10 +47,18 @@ public class LumiEnergy : MonoBehaviour
     [Tooltip("Flicker depth when light is low, fraction of base intensity.")]
     [SerializeField] float lowLightFlickerAmount = 0.35f;
 
+    [Tooltip("Dash glow pop, multiple of base intensity.")]
+    [SerializeField] float dashFlarePeak = 1.8f;
+
+    [Tooltip("Dash glow pop fade-out, s.")]
+    [SerializeField] float dashFlareDuration = 0.35f;
+
     float[] baseIntensities;
     float igniteDuration;
     float igniteElapsed;
     bool igniting;
+    float flareElapsed;
+    bool flaring;
 
     public float Normalized => energy / maxEnergy;
     public float Energy => energy;
@@ -89,6 +97,7 @@ public class LumiEnergy : MonoBehaviour
             igniteElapsed += Time.deltaTime;
             if (igniteElapsed >= igniteDuration) igniting = false;
         }
+        if (flaring) flareElapsed += Time.deltaTime;
         ApplyGlow();
     }
 
@@ -112,19 +121,36 @@ public class LumiEnergy : MonoBehaviour
         igniting = true;
     }
 
+    // Dash hook: pops the glow to dashFlarePeak, then lets it contract back to base over dashFlareDuration.
+    public void Flare()
+    {
+        flareElapsed = 0f;
+        flaring = true;
+    }
+
     void ApplyGlow()
     {
         if (glowLights == null) return;
         Color c = Color.Lerp(lowColor, highColor, Normalized);
         float ignite = igniting ? Mathf.SmoothStep(0f, 1f, igniteElapsed / igniteDuration) : 1f;
         float pulse = GlowPulse();
+        float flare = DashFlare();
         for (int i = 0; i < glowLights.Length; i++)
         {
             var glow = glowLights[i];
             if (glow == null) continue;
             glow.color = c;
-            glow.intensity = baseIntensities[i] * pulse * ignite;
+            glow.intensity = baseIntensities[i] * pulse * ignite * flare;
         }
+    }
+
+    // Dash flare: snaps to dashFlarePeak on the press, then eases back to 1 over dashFlareDuration.
+    float DashFlare()
+    {
+        if (!flaring) return 1f;
+        float t = flareElapsed / dashFlareDuration;
+        if (t >= 1f) { flaring = false; return 1f; }
+        return Mathf.Lerp(dashFlarePeak, 1f, t);
     }
 
     // Gentle sine breath at full charge; below the threshold it crossfades into a faster, noisier
