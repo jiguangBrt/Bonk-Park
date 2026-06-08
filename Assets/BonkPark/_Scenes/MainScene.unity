@@ -668,6 +668,10 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: lightSpawner
+      value: 
+      objectReference: {fileID: 1292136375}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: dangerFalloff
       value: 1
       objectReference: {fileID: 0}
@@ -932,7 +936,10 @@ MonoBehaviour:
   motePrefab: {fileID: 1077962950060469598, guid: 936daacf1f6319f44a25d82019adcdfe, type: 3}
   park: {fileID: 1694238043}
   lumi: {fileID: 1449090963}
+  bonkLightPrefab: {fileID: 6581001817771705517, guid: 88888638b9f4abd419d3a15400127fd2, type: 3}
   population: 3
+  bonkLightCount: 3
+  bonkScatterRadius: 0.5
   spawnInterval: 3
   edgeMargin: 1
   playerClearance: 2

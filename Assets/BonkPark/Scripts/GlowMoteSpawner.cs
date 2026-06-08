@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 // Trickles glow motes into view: one every few seconds, up to a cap. When Lumi absorbs one the
@@ -14,8 +15,17 @@ public class GlowMoteSpawner : MonoBehaviour
     [Tooltip("Lumi's energy — motes refill it and home toward it.")]
     [SerializeField] LumiEnergy lumi;
 
+    [Tooltip("Light prefab spilled when a bat bonks.")]
+    [SerializeField] GlowMote bonkLightPrefab;
+
     [Tooltip("Most motes alive at once.")]
     [SerializeField] int population = 3;
+
+    [Tooltip("Light pieces spilled per bonk.")]
+    [SerializeField] int bonkLightCount = 3;
+
+    [Tooltip("How far the pieces scatter from the bonk spot, m.")]
+    [SerializeField] float bonkScatterRadius = 0.5f;
 
     [Tooltip("Seconds between spawns.")]
     [SerializeField] float spawnInterval = 5f;
@@ -29,6 +39,9 @@ public class GlowMoteSpawner : MonoBehaviour
     [Tooltip("Keep spawns at least this far from each other, m.")]
     [SerializeField] float minMoteSpacing = 5f;
 
+    // Only the ambient motes count toward the population cap; bonk light is short-lived and excluded.
+    readonly List<GlowMote> ambient = new List<GlowMote>();
+
     void Start()
     {
         StartCoroutine(SpawnLoop());
@@ -38,7 +51,8 @@ public class GlowMoteSpawner : MonoBehaviour
     {
         while (true)
         {
-            if (FindObjectsOfType<GlowMote>().Length < population) SpawnMote();
+            ambient.RemoveAll(m => m == null);
+            if (ambient.Count < population) SpawnMote();
             yield return new WaitForSeconds(spawnInterval);
         }
     }
@@ -48,6 +62,20 @@ public class GlowMoteSpawner : MonoBehaviour
         Vector2 pos = PickSpawnPoint();
         var mote = Instantiate(motePrefab, pos, Quaternion.identity);
         mote.Init(lumi, park.transform.position, BoundsHalf() * 2f);
+        ambient.Add(mote);
+    }
+
+    // Spilled by a bat bonk: light bursts outward from the hit in a ring, then homes into Lumi.
+    public void SpawnBonkLight(Vector2 point)
+    {
+        for (int i = 0; i < bonkLightCount; i++)
+        {
+            float angle = (360f / bonkLightCount * i + Random.Range(-25f, 25f)) * Mathf.Deg2Rad;
+            Vector2 dir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            var light = Instantiate(bonkLightPrefab, point + dir * bonkScatterRadius, Quaternion.identity);
+            light.Init(lumi, park.transform.position, BoundsHalf() * 2f);
+            light.LaunchBurst(dir);
+        }
     }
 
     // Half-extent of the spawn/drift area: the camera view, pulled in by the edge margin so a

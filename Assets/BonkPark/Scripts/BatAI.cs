@@ -79,6 +79,9 @@ public class BatAI : MonoBehaviour
     [Tooltip("Deceleration while sliding through stun, m/s^2. Tuned so the slide stops near stun end.")]
     [SerializeField] float stunDeceleration = 5f;
 
+    [Tooltip("Spawner that spills light at the bonk spot.")]
+    [SerializeField] GlowMoteSpawner lightSpawner;
+
     Rigidbody2D rb;
     SpriteRenderer sr;
     Animator animator;
@@ -269,8 +272,8 @@ public class BatAI : MonoBehaviour
         var bonk = collision.gameObject.GetComponent<Bonkable>();
         if (bonk == null) return;
 
-        Vector2 normal = collision.GetContact(0).normal;
-        Vector2 reflected = Vector2.Reflect(lastVelocity, normal) * bonkBounceRetention;
+        ContactPoint2D contact = collision.GetContact(0);
+        Vector2 reflected = Vector2.Reflect(lastVelocity, contact.normal) * bonkBounceRetention;
 
         rb.velocity = reflected;
         currentSpeed = reflected.magnitude;
@@ -280,5 +283,6 @@ public class BatAI : MonoBehaviour
         stunRemaining = bonk.StunDuration;
         if (animator != null) animator.SetTrigger(BonkTriggerId);
         if (cameraShake != null) cameraShake.Shake(shakeDuration, shakeMagnitude);
+        if (lightSpawner != null) lightSpawner.SpawnBonkLight(contact.point);
     }
 }
