@@ -41,23 +41,28 @@ public class BatAI : MonoBehaviour
     [Range(8, 32)]
     [SerializeField] int directionSlots = 16;
 
-    [Tooltip("Obstacle lookahead distance, m. Sets the reaction window for the bonk mechanic.")]
-    [SerializeField] float dangerLookahead = 2.5f;
+    [Tooltip("Lookahead straight ahead, m. The bat sees obstacles in front from this far.")]
+    [SerializeField] float frontLookahead = 6f;
+
+    [Tooltip("Lookahead to the sides, m. Shorter so a wall the bat only slides past doesn't scare it.")]
+    [SerializeField] float sideLookahead = 3f;
+
+    [Tooltip("Danger probe radius, m. Match the bat's collider half-width so it won't steer where its body can't fit.")]
+    [SerializeField] float bodyRadius = 0.6f;
 
     [Tooltip("Danger falloff exponent. Higher = only very-close obstacles repel.")]
     [SerializeField] float dangerFalloff = 2f;
 
-    [Tooltip("Weight of danger vs interest. Higher = more avoidance, lower = more bonking.")]
-    [SerializeField] float dangerWeight = 1.5f;
+    [Tooltip("How hard danger suppresses interest. Higher = more avoidance, lower = more bonking.")]
+    [SerializeField] float dangerWeight = 1f;
 
     [Tooltip("Bonus for slots near current heading; kills jitter between adjacent slots.")]
     [Range(0f, 0.5f)]
     [SerializeField] float headingMomentumBias = 0.15f;
 
-    [Header("Sprite")]
-
-    [Tooltip("Flip sprite by heading.")]
-    [SerializeField] bool flipSpriteByHeading = true;
+    [Tooltip("Small lean toward the clearer side when a wall sits dead ahead.")]
+    [Range(0f, 0.5f)]
+    [SerializeField] float sidePref = 0.15f;
 
     [Header("Init")]
 
@@ -76,22 +81,39 @@ public class BatAI : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] float bonkBounceRetention = 0.3f;
 
+    [Tooltip("Lowest push-off speed after a bonk, m/s, so a slow hit still slides clear of the wall.")]
+    [SerializeField] float bonkEscapeSpeed = 4f;
+
     [Tooltip("Deceleration while sliding through stun, m/s^2. Tuned so the slide stops near stun end.")]
     [SerializeField] float stunDeceleration = 5f;
 
     [Tooltip("Spawner that spills light at the bonk spot.")]
     [SerializeField] GlowMoteSpawner lightSpawner;
 
+    [Header("Debug")]
+
+    [Tooltip("Draw steering rays and the heading/desired velocity arrows in the editor.")]
+    [SerializeField] bool drawDebugGizmos;
+
+    [Tooltip("Meters drawn per m/s for the velocity arrows.")]
+    [SerializeField] float debugVelocityScale = 0.3f;
+
     Rigidbody2D rb;
-    SpriteRenderer sr;
     Animator animator;
     CameraShake cameraShake;
     Vector2 heading;
     float currentSpeed;
 
+    // Last frame's chosen direction and target speed, cached for the debug gizmos.
+    Vector2 debugDesired;
+    float debugTargetSpeed;
+
     Vector2[] desiredBuffer;
     int desiredHead;
     int desiredCount;
+
+    float[] slotScore;
+    float[] slotDanger;
 
     float stunRemaining;
     // OnCollisionEnter2D fires after the physics solver has already zeroed rb.velocity, so the reflection has to use the velocity from the previous step.
@@ -136,7 +158,6 @@ public class BatAI : MonoBehaviour
         Vector2 delayedDesired = PushIntentAndReadDelayed(toTarget.normalized);
         Vector2 desired = ChooseDesiredDirection(delayedDesired);
         ApplyMotion(desired);
-        UpdateSpriteFacing();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -148,7 +169,6 @@ public class BatAI : MonoBehaviour
     void CacheComponents()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         var mainCam = Camera.main;
         if (mainCam != null) cameraShake = mainCam.GetComponent<CameraShake>();
@@ -198,36 +218,71 @@ public class BatAI : MonoBehaviour
         return desiredBuffer[readIdx];
     }
 
-    // Context steering: score each evenly-spaced slot by interest (toward delayed desired, plus a heading-momentum bonus) minus danger (raycast proximity). Best-scoring slot becomes the new desired direction.
+    // Context steering: score each slot by interest (toward the delayed desired plus a heading bonus), masked by how dangerous that slot is. The best slot wins and gets interpolated against its neighbours so the heading isn't locked to the discrete slots.
     Vector2 ChooseDesiredDirection(Vector2 delayedDesired)
     {
-        Vector2 best = delayedDesired;
-        float bestScore = float.NegativeInfinity;
-        float twoPi = Mathf.PI * 2f;
-
-        for (int i = 0; i < directionSlots; i++)
+        int n = directionSlots;
+        if (slotScore == null || slotScore.Length != n)
         {
-            float a = (i / (float)directionSlots) * twoPi;
+            slotScore = new float[n];
+            slotDanger = new float[n];
+        }
+
+        float twoPi = Mathf.PI * 2f;
+        float speedT = Mathf.Clamp01(currentSpeed / maxSpeed);
+
+        int best = 0;
+        float bestScore = float.NegativeInfinity;
+        int wantMost = 0;
+        float mostInterest = float.NegativeInfinity;
+
+        for (int i = 0; i < n; i++)
+        {
+            float a = (i / (float)n) * twoPi;
             Vector2 slot = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+
+            // See far ahead, short to the sides, and a little further the faster we're already committed.
+            float fwd = Mathf.Clamp01(Vector2.Dot(slot, heading));
+            float reach = Mathf.Lerp(sideLookahead, frontLookahead * Mathf.Lerp(0.5f, 1f, speedT), fwd);
 
             float interest = Mathf.Max(0f, Vector2.Dot(slot, delayedDesired))
                            + headingMomentumBias * Mathf.Max(0f, Vector2.Dot(slot, heading));
+            float danger = ScoreDanger(slot, reach);
 
-            float score = interest - ScoreDanger(slot) * dangerWeight;
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = slot;
-            }
+            slotScore[i] = interest * Mathf.Max(0f, 1f - dangerWeight * danger);
+            slotDanger[i] = danger;
+
+            if (slotScore[i] > bestScore) { bestScore = slotScore[i]; best = i; }
+            if (interest > mostInterest) { mostInterest = interest; wantMost = i; }
         }
-        return best;
+
+        // Every way toward Lumi is walled off: head for her anyway and let the bonk recovery deal with the wall.
+        if (bestScore <= 0f) best = wantMost;
+
+        int left = (best - 1 + n) % n;
+        int right = (best + 1) % n;
+        float sL = slotScore[left], s0 = slotScore[best], sR = slotScore[right];
+
+        // Parabola vertex across the winning slot and its neighbours, so the heading lands between slots.
+        float offset = 0f;
+        float denom = sL - 2f * s0 + sR;
+        if (denom < -1e-4f) offset = 0.5f * (sL - sR) / denom;
+
+        // Lean toward whichever neighbour is clearer; Sign is 0 on a perfectly symmetric wall so momentum decides instead.
+        offset += sidePref * Mathf.Sign(slotDanger[left] - slotDanger[right]);
+        offset = Mathf.Clamp(offset, -0.5f, 0.5f);
+
+        float angle = ((best + offset) / n) * twoPi;
+        return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
     }
 
-    float ScoreDanger(Vector2 slot)
+    // Sweep a body-width circle instead of a thin ray so a slot the centre could thread but the body can't gets flagged as dangerous.
+    float ScoreDanger(Vector2 slot, float reach)
     {
-        RaycastHit2D hit = Physics2D.Raycast(rb.position, slot, dangerLookahead, obstacleMask);
+        RaycastHit2D hit = Physics2D.CircleCast(rb.position, bodyRadius, slot, reach, obstacleMask);
         if (hit.collider == null) return 0f;
-        float proximity = 1f - hit.distance / dangerLookahead;
+        if (hit.distance <= 0f) return 1f;   // already overlapping that side: the body can't leave this way
+        float proximity = 1f - hit.distance / reach;
         return Mathf.Pow(proximity, dangerFalloff);
     }
 
@@ -236,6 +291,9 @@ public class BatAI : MonoBehaviour
         // Alignment scales target speed: aligned = full, sideways = slow for tighter turn, reversed = near zero.
         float alignment = Vector2.Dot(heading, desired);
         float targetSpeed = maxSpeed * speedByAlignment.Evaluate(alignment);
+
+        debugDesired = desired;
+        debugTargetSpeed = targetSpeed;
 
         // Asymmetric ramp combined with alignment falloff produces a natural drift on sharp turns.
         float rate = targetSpeed > currentSpeed ? acceleration : autoBraking;
@@ -251,13 +309,6 @@ public class BatAI : MonoBehaviour
         lastVelocity = rb.velocity;
     }
 
-    void UpdateSpriteFacing()
-    {
-        if (!flipSpriteByHeading || sr == null) return;
-        if (Mathf.Abs(heading.x) <= 0.01f) return;
-        sr.flipX = heading.x < 0f;
-    }
-
     bool TryKillPlayerOnContact(Collision2D collision)
     {
         var death = collision.gameObject.GetComponent<PlayerDeath>();
@@ -266,23 +317,85 @@ public class BatAI : MonoBehaviour
         return true;
     }
 
-    // Reflect pre-impact velocity off the contact normal and damp it; flipping heading is the key to breaking the stun-rebonk loop.
+    // Force the heading away from the wall and guarantee a minimum push-off, so even a slow bonk slides clear instead of scraping the same wall over and over.
     void TryBonk(Collision2D collision)
     {
         var bonk = collision.gameObject.GetComponent<Bonkable>();
         if (bonk == null) return;
 
         ContactPoint2D contact = collision.GetContact(0);
-        Vector2 reflected = Vector2.Reflect(lastVelocity, contact.normal) * bonkBounceRetention;
 
-        rb.velocity = reflected;
-        currentSpeed = reflected.magnitude;
-        if (reflected.sqrMagnitude > 0.0001f) heading = reflected.normalized;
-        lastVelocity = reflected;
+        Vector2 escape = -lastVelocity.normalized;
+        if (Vector2.Dot(escape, contact.normal) <= 0f) escape = contact.normal;
+        heading = escape;
+        currentSpeed = Mathf.Max(lastVelocity.magnitude * bonkBounceRetention, bonkEscapeSpeed);
+
+        rb.velocity = heading * currentSpeed;
+        lastVelocity = rb.velocity;
 
         stunRemaining = bonk.StunDuration;
         if (animator != null) animator.SetTrigger(BonkTriggerId);
         if (cameraShake != null) cameraShake.Shake(shakeDuration, shakeMagnitude);
         if (lightSpawner != null) lightSpawner.SpawnBonkLight(contact.point);
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!drawDebugGizmos) return;
+
+        Vector2 origin = Application.isPlaying && rb != null ? rb.position : (Vector2)transform.position;
+        float twoPi = Mathf.PI * 2f;
+
+        float speedT = Mathf.Clamp01(currentSpeed / maxSpeed);
+
+        // Steering slots: sweep a body-width circle per slot; clip the line where the body would first touch.
+        for (int i = 0; i < directionSlots; i++)
+        {
+            float a = (i / (float)directionSlots) * twoPi;
+            Vector2 slot = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+            float fwd = Mathf.Clamp01(Vector2.Dot(slot, heading));
+            float reach = Mathf.Lerp(sideLookahead, frontLookahead * Mathf.Lerp(0.5f, 1f, speedT), fwd);
+            RaycastHit2D hit = Physics2D.CircleCast(origin, bodyRadius, slot, reach, obstacleMask);
+            if (hit.collider == null)
+            {
+                Gizmos.color = new Color(0.3f, 0.6f, 0.3f, 0.5f);
+                Gizmos.DrawLine(origin, origin + slot * reach);
+            }
+            else if (hit.distance <= 0f)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(origin, bodyRadius);
+            }
+            else
+            {
+                Vector2 stop = origin + slot * hit.distance;
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(origin, stop);
+                Gizmos.DrawWireSphere(stop, bodyRadius);
+            }
+        }
+
+        // Current heading scaled by current speed.
+        Gizmos.color = Color.cyan;
+        DrawArrow(origin, heading * currentSpeed * debugVelocityScale);
+
+        // Chosen direction scaled by target speed (only set while playing).
+        if (Application.isPlaying)
+        {
+            Gizmos.color = Color.yellow;
+            DrawArrow(origin, debugDesired * debugTargetSpeed * debugVelocityScale);
+        }
+    }
+
+    static void DrawArrow(Vector2 from, Vector2 vec)
+    {
+        Vector2 tip = from + vec;
+        Gizmos.DrawLine(from, tip);
+        if (vec.sqrMagnitude < 0.0001f) return;
+        Vector2 dir = vec.normalized;
+        Vector2 wing = -dir * 0.3f;
+        Vector2 perp = new Vector2(-dir.y, dir.x) * 0.15f;
+        Gizmos.DrawLine(tip, tip + wing + perp);
+        Gizmos.DrawLine(tip, tip + wing - perp);
     }
 }
