@@ -933,10 +933,10 @@ MonoBehaviour:
   park: {fileID: 1694238043}
   lumi: {fileID: 1449090963}
   population: 3
-  spawnInterval: 5
+  spawnInterval: 3
   edgeMargin: 1
   playerClearance: 2
-  minMoteSpacing: 5
+  minMoteSpacing: 3
 --- !u!4 &1292136376
 Transform:
   m_ObjectHideFlags: 0
@@ -1423,6 +1423,11 @@ MonoBehaviour:
   spriteHeadOffsetDeg: -180
   lowLightSpeedFloor: 0.25
   lowLightFalloff: 2
+  dashDistance: 3
+  dashDuration: 0.15
+  dashEndSpeed: 8
+  dashCost: 10
+  dashCooldown: 0.5
   initialHeading: {x: 0, y: 1}
   initialSpeed: 0
 --- !u!50 &1449090957
@@ -1666,6 +1671,8 @@ MonoBehaviour:
   lowLightDim: 0.4
   lowLightFlickerSpeed: 14
   lowLightFlickerAmount: 0.35
+  dashFlarePeak: 1.8
+  dashFlareDuration: 0.35
 --- !u!114 &1449090964
 MonoBehaviour:
   m_ObjectHideFlags: 0
