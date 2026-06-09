@@ -116,6 +116,8 @@ public class BatAI : MonoBehaviour
     float[] slotDanger;
 
     float stunRemaining;
+    int bushCount;
+    float bushSlow = 1f;
     // OnCollisionEnter2D fires after the physics solver has already zeroed rb.velocity, so the reflection has to use the velocity from the previous step.
     Vector2 lastVelocity;
 
@@ -290,7 +292,7 @@ public class BatAI : MonoBehaviour
     {
         // Alignment scales target speed: aligned = full, sideways = slow for tighter turn, reversed = near zero.
         float alignment = Vector2.Dot(heading, desired);
-        float targetSpeed = maxSpeed * speedByAlignment.Evaluate(alignment);
+        float targetSpeed = maxSpeed * speedByAlignment.Evaluate(alignment) * BushSpeedMultiplier();
 
         debugDesired = desired;
         debugTargetSpeed = targetSpeed;
@@ -308,6 +310,12 @@ public class BatAI : MonoBehaviour
         rb.velocity = heading * currentSpeed;
         lastVelocity = rb.velocity;
     }
+
+    // A bush drags on the bat while it's inside; the bush sets the factor, the count handles overlap.
+    public void EnterBush(float multiplier) { bushSlow = multiplier; bushCount++; }
+    public void ExitBush() => bushCount = Mathf.Max(0, bushCount - 1);
+
+    float BushSpeedMultiplier() => bushCount > 0 ? bushSlow : 1f;
 
     bool TryKillPlayerOnContact(Collision2D collision)
     {
@@ -337,6 +345,7 @@ public class BatAI : MonoBehaviour
         if (animator != null) animator.SetTrigger(BonkTriggerId);
         if (cameraShake != null) cameraShake.Shake(shakeDuration, shakeMagnitude);
         if (lightSpawner != null) lightSpawner.SpawnBonkLight(contact.point);
+        bonk.OnBonk();
     }
 
     void OnDrawGizmos()
