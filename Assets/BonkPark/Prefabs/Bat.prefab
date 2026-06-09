@@ -194,8 +194,8 @@ PolygonCollider2D:
       - {x: -0.12, y: 0.26999998}
       - {x: -0.14, y: 0.26999998}
       - {x: -0.14999999, y: 0.26}
-      - {x: -0.16, y: 0.16499999}
-      - {x: -0.175, y: 0.13}
+      - {x: -0.15886942, y: 0.16839197}
+      - {x: -0.17160778, y: 0.12208545}
       - {x: -0.205, y: 0.19}
       - {x: -0.22, y: 0.19999999}
       - {x: -0.19999999, y: 0.275}
@@ -240,10 +240,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  reactionDelay: 0.1
+  reactionDelay: 0.05
   maxSpeed: 13
-  acceleration: 12
-  autoBraking: 25
+  acceleration: 10
+  autoBraking: 10
   speedByAlignment:
     serializedVersion: 2
     m_Curve:
@@ -258,13 +258,22 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 0
-      value: 0.35
+      value: 0.56652224
       inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
+    - serializedVersion: 3
+      time: 0.734854
+      value: 0.80180013
+      inSlope: 0.5213968
+      outSlope: 0.5213968
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
@@ -282,7 +291,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 360
+      value: 220
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -290,8 +299,17 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
+      time: 0.113347456
+      value: 191.95674
+      inSlope: -134.67563
+      outSlope: -134.67563
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
       time: 0.5
-      value: 200
+      value: 163.92297
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -300,7 +318,7 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 120
+      value: 105
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -313,17 +331,23 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 256
-  directionSlots: 16
-  dangerLookahead: 2.5
+  directionSlots: 32
+  frontLookahead: 6
+  sideLookahead: 3
+  bodyRadius: 0.6
   dangerFalloff: 2
-  dangerWeight: 1.5
-  headingMomentumBias: 0.15
-  flipSpriteByHeading: 1
+  dangerWeight: 0.5
+  headingMomentumBias: 0.05
+  sidePref: 0.15
   initialHeading: {x: 1, y: 0}
   shakeDuration: 0.2
-  shakeMagnitude: 0.15
-  bonkBounceRetention: 0.3
+  shakeMagnitude: 0.1
+  bonkBounceRetention: 0.4
+  bonkEscapeSpeed: 4
   stunDeceleration: 5
+  lightSpawner: {fileID: 0}
+  drawDebugGizmos: 1
+  debugVelocityScale: 0.3
 --- !u!95 &4847245478757044349
 Animator:
   serializedVersion: 5

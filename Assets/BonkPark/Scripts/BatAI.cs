@@ -337,6 +337,7 @@ public class BatAI : MonoBehaviour
         if (animator != null) animator.SetTrigger(BonkTriggerId);
         if (cameraShake != null) cameraShake.Shake(shakeDuration, shakeMagnitude);
         if (lightSpawner != null) lightSpawner.SpawnBonkLight(contact.point);
+        bonk.OnBonk();
     }
 
     void OnDrawGizmos()

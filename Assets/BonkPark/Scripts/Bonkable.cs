@@ -8,4 +8,7 @@ public class Bonkable : MonoBehaviour
     [SerializeField] float stunDuration = 0.8f;
 
     public float StunDuration => stunDuration;
+
+    // Called when a pursuer bonks this obstacle, so props can react (e.g. the lamp short-circuits).
+    public virtual void OnBonk() { }
 }
