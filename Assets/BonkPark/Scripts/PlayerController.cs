@@ -82,6 +82,8 @@ public class PlayerController : MonoBehaviour
     bool dashing;
     float dashTimer;
     Vector2 dashDir;
+    int bushCount;
+    float bushSlow = 1f;
 
     // Populates the two curves with sensible defaults on inspector Reset.
     void Reset()
@@ -207,7 +209,7 @@ public class PlayerController : MonoBehaviour
         float distanceFactor = targetSpeedByDistance.Evaluate(Mathf.Clamp01(distance / arrivalRange));
         float alignment = Vector2.Dot(heading, desired);
         float alignmentFactor = speedByAlignment.Evaluate(alignment);
-        return maxSpeed * distanceFactor * alignmentFactor * LowLightSpeedMultiplier();
+        return maxSpeed * distanceFactor * alignmentFactor * LowLightSpeedMultiplier() * BushSpeedMultiplier();
     }
 
     // Full speed above the low-light threshold; below it, speed falls along (light/threshold)^falloff
@@ -218,6 +220,12 @@ public class PlayerController : MonoBehaviour
         float t = Mathf.Clamp01(energy.Normalized / energy.LowLightThreshold);
         return Mathf.Lerp(lowLightSpeedFloor, 1f, Mathf.Pow(t, lowLightFalloff));
     }
+
+    // A bush slows whoever is inside; the bush sets the factor, the count handles overlapping bushes.
+    public void EnterBush(float multiplier) { bushSlow = multiplier; bushCount++; }
+    public void ExitBush() => bushCount = Mathf.Max(0, bushCount - 1);
+
+    float BushSpeedMultiplier() => bushCount > 0 ? bushSlow : 1f;
 
     // Asymmetric ramp: soft acceleration, firm braking.
     void UpdateSpeed(float targetSpeed)
