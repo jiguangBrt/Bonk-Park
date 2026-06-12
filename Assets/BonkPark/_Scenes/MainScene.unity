@@ -2043,9 +2043,9 @@ MonoBehaviour:
   softness: 0.6
   textFadeIn: 1.2
   textFadeOut: 1
-  voiceLead: 0.4
+  voiceLead: 0
   breathAfter: 1
-  linePause: 0.8
+  linePause: 0.3
   breathSpeed: 2.2
   breathAmount: 0.22
   eyesBeforePanel: 3
@@ -2061,7 +2061,7 @@ MonoBehaviour:
   batEyes: {fileID: 426975872}
   narration: {fileID: 1641593813}
   narrationSource: {fileID: 959618327}
-  forceReplayInEditor: 0
+  forceReplayInEditor: 1
 --- !u!225 &959618322
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3674,7 +3674,7 @@ Transform:
   m_GameObject: {fileID: 1449090954}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 1, y: 1, z: 0}
+  m_LocalPosition: {x: 3.65, y: 1.53, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3819,7 +3819,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxEnergy: 100
-  drainRate: 20
+  drainRate: 10
   lowLightThreshold: 0.6
   energy: 100
   glowLights:
@@ -4606,11 +4606,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2682091550586177451, guid: 16efef57f4d747b42a7558dd86df05e1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.62
+      value: -0.09
       objectReference: {fileID: 0}
     - target: {fileID: 2682091550586177451, guid: 16efef57f4d747b42a7558dd86df05e1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.18
+      value: -1.08
       objectReference: {fileID: 0}
     - target: {fileID: 2682091550586177451, guid: 16efef57f4d747b42a7558dd86df05e1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5486,11 +5486,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.14
+      value: -4.88
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.47
+      value: 2.21
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6109,11 +6109,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.76
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.29
+      value: -1.56
       objectReference: {fileID: 0}
     - target: {fileID: 4483673839972858129, guid: ec1267442e6dd304e9fa765f9f45c747, type: 3}
       propertyPath: m_LocalPosition.z
