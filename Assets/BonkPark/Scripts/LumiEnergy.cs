@@ -122,6 +122,12 @@ public class LumiEnergy : MonoBehaviour
         energy = Mathf.Min(maxEnergy, energy + amount);
     }
 
+    // Set the charge directly — the intro starts Lumi dark at zero, the tutorial tops it back up before the chase.
+    public void SetEnergy(float value)
+    {
+        energy = Mathf.Clamp(value, 0f, maxEnergy);
+    }
+
     // Ignition ramp for the intro handoff; the glow swells from dark to full over the given duration.
     public void Ignite(float duration)
     {

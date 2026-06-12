@@ -65,6 +65,14 @@ public class GlowMoteSpawner : MonoBehaviour
         ambient.Add(mote);
     }
 
+    // Drop one mote at a chosen spot, outside the ambient cap — onboarding uses this to guarantee a mote in reach.
+    public GlowMote SpawnAt(Vector2 worldPos)
+    {
+        var mote = Instantiate(motePrefab, worldPos, Quaternion.identity);
+        mote.Init(lumi, park.transform.position, BoundsHalf() * 2f);
+        return mote;
+    }
+
     // Spilled by a bat bonk: light bursts outward from the hit in a ring, then homes into Lumi.
     public void SpawnBonkLight(Vector2 point)
     {

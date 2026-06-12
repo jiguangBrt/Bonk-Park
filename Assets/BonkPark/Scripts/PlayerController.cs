@@ -85,6 +85,8 @@ public class PlayerController : MonoBehaviour
     int bushCount;
     float bushSlow = 1f;
 
+    public bool Dashing => dashing;
+
     // Populates the two curves with sensible defaults on inspector Reset.
     void Reset()
     {
