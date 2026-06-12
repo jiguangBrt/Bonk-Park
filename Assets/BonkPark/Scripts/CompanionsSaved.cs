@@ -39,8 +39,10 @@ public class CompanionsSaved : MonoBehaviour
     int saved;
     float survivalTime;
     float nextSave;
+    bool counting = true;
 
     public int Saved => saved;
+    public float SurvivalTime => survivalTime;
 
     void OnEnable()
     {
@@ -56,6 +58,7 @@ public class CompanionsSaved : MonoBehaviour
 
     void Update()
     {
+        if (!counting) return;
         survivalTime += Time.deltaTime;
         nextSave -= Time.deltaTime;
         if (nextSave <= 0f)
@@ -67,10 +70,10 @@ public class CompanionsSaved : MonoBehaviour
         Refresh();
     }
 
-    // Freeze the totals when the run ends.
+    // Freeze the totals when the run ends, leaving the readout on screen at its final values.
     public void StopCounting()
     {
-        enabled = false;
+        counting = false;
     }
 
     void Refresh()

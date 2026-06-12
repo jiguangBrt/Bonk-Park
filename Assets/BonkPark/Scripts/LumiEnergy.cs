@@ -69,6 +69,9 @@ public class LumiEnergy : MonoBehaviour
     public float LowLightThreshold => lowLightThreshold;
     public bool IsLowLight => Normalized < lowLightThreshold;
 
+    // Holds the passive drain while the run is paused for onboarding or frozen on death.
+    public bool DrainPaused { get; set; }
+
     void Awake()
     {
         if (!Application.isPlaying) return;
@@ -94,7 +97,8 @@ public class LumiEnergy : MonoBehaviour
             SyncEditorColor();
             return;
         }
-        energy = Mathf.Max(0f, energy - drainRate * Time.deltaTime);
+        if (!DrainPaused)
+            energy = Mathf.Max(0f, energy - drainRate * Time.deltaTime);
         if (igniting)
         {
             igniteElapsed += Time.deltaTime;
