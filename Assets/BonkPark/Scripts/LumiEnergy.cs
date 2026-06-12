@@ -59,6 +59,9 @@ public class LumiEnergy : MonoBehaviour
     bool igniting;
     float flareElapsed;
     bool flaring;
+    float extinguishDuration;
+    float extinguishElapsed;
+    bool extinguishing;
 
     public float Normalized => energy / maxEnergy;
     public float Energy => energy;
@@ -98,6 +101,8 @@ public class LumiEnergy : MonoBehaviour
             if (igniteElapsed >= igniteDuration) igniting = false;
         }
         if (flaring) flareElapsed += Time.deltaTime;
+        if (extinguishing)
+            extinguishElapsed = Mathf.Min(extinguishDuration, extinguishElapsed + Time.deltaTime);
         ApplyGlow();
     }
 
@@ -128,11 +133,20 @@ public class LumiEnergy : MonoBehaviour
         flaring = true;
     }
 
+    // Death hook: fades the glow out over the given duration and holds it dark.
+    public void Extinguish(float duration)
+    {
+        extinguishDuration = Mathf.Max(0.0001f, duration);
+        extinguishElapsed = 0f;
+        extinguishing = true;
+    }
+
     void ApplyGlow()
     {
         if (glowLights == null) return;
         Color c = Color.Lerp(lowColor, highColor, Normalized);
         float ignite = igniting ? Mathf.SmoothStep(0f, 1f, igniteElapsed / igniteDuration) : 1f;
+        float extinguish = extinguishing ? Mathf.SmoothStep(1f, 0f, extinguishElapsed / extinguishDuration) : 1f;
         float pulse = GlowPulse();
         float flare = DashFlare();
         for (int i = 0; i < glowLights.Length; i++)
@@ -140,7 +154,7 @@ public class LumiEnergy : MonoBehaviour
             var glow = glowLights[i];
             if (glow == null) continue;
             glow.color = c;
-            glow.intensity = baseIntensities[i] * pulse * ignite * flare;
+            glow.intensity = baseIntensities[i] * pulse * ignite * flare * extinguish;
         }
     }
 

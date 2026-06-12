@@ -70,6 +70,7 @@ public class IntroSequence : MonoBehaviour
     [SerializeField] PlayerController player;
     [SerializeField] MonoBehaviour batAI;
     [SerializeField] LumiEnergy lumi;
+    [SerializeField] CompanionsSaved companions;
     [SerializeField] Image panelImage;
     [SerializeField] CanvasGroup rootGroup;
     [SerializeField] CanvasGroup batEyes;
@@ -116,6 +117,7 @@ public class IntroSequence : MonoBehaviour
         if (player != null) player.enabled = false;
         if (batAI != null) batAI.enabled = false;
         if (lumi != null) lumi.enabled = false;
+        if (companions != null) companions.enabled = false;
 
         playing = true;
         StartCoroutine(PlayRoutine());
@@ -262,6 +264,7 @@ public class IntroSequence : MonoBehaviour
 
         if (lumi != null) { lumi.enabled = true; lumi.Ignite(igniteDuration); }
         if (player != null) player.enabled = true;
+        if (companions != null) companions.enabled = true;
 
         float t = 0f;
         while (t < igniteDuration)

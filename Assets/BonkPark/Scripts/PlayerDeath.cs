@@ -1,13 +1,21 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-// Handles Lumi's death: freezes for a brief feedback window, then reloads the current scene. Die() is idempotent.
+// Handles Lumi's death: freezes Lumi and the predators, pushes the camera in, fades the glow out, then raises the
+// death screen. Die() is idempotent. The run does not reload here — the death screen's Play Again does that.
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerDeath : MonoBehaviour
 {
-    [Tooltip("Freeze duration before reload.")]
-    [SerializeField] float freezeDuration = 0.3f;
+    [Tooltip("Camera push-in and glow fade duration before the death screen, seconds.")]
+    [SerializeField] float zoomDuration = 0.9f;
+
+    [Tooltip("Orthographic size the camera tightens to on death.")]
+    [SerializeField] float targetSize = 2.5f;
+
+    [SerializeField] LumiEnergy lumi;
+    [SerializeField] CameraDeathZoom cameraZoom;
+    [SerializeField] DeathScreen deathScreen;
+    [SerializeField] CompanionsSaved companions;
 
     Rigidbody2D rb;
     PlayerController controller;
@@ -17,6 +25,7 @@ public class PlayerDeath : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         controller = GetComponent<PlayerController>();
+        if (lumi == null) lumi = GetComponent<LumiEnergy>();
     }
 
     public void Die()
@@ -32,7 +41,20 @@ public class PlayerDeath : MonoBehaviour
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.bodyType = RigidbodyType2D.Static;
-        yield return new WaitForSeconds(freezeDuration);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+        foreach (var bat in FindObjectsOfType<BatAI>())
+        {
+            bat.enabled = false;
+            var batRb = bat.GetComponent<Rigidbody2D>();
+            if (batRb != null) { batRb.velocity = Vector2.zero; batRb.angularVelocity = 0f; }
+        }
+
+        if (lumi != null) lumi.Extinguish(zoomDuration);
+        if (cameraZoom != null) cameraZoom.PlayZoom(transform, zoomDuration, targetSize);
+        if (companions != null) companions.StopCounting();
+
+        yield return new WaitForSeconds(zoomDuration);
+
+        if (deathScreen != null) deathScreen.Show(companions != null ? companions.Saved : 0);
     }
 }
