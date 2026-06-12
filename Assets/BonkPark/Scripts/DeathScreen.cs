@@ -11,7 +11,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class DeathScreen : MonoBehaviour
 {
-    [Tooltip("Lines shown over the picture, top to bottom. The line holding {0} is filled with the count.")]
+    [Tooltip("Lines shown over the picture, top to bottom. {time} is filled with how long the run lasted, {count} with fireflies saved.")]
     [SerializeField] TMP_Text[] lines;
 
     [Tooltip("Restarts the run.")]
@@ -40,11 +40,13 @@ public class DeathScreen : MonoBehaviour
         group.blocksRaycasts = false;
     }
 
-    public void Show(int saved)
+    public void Show(int saved, float seconds)
     {
+        string time = FormatTime(seconds);
+        string count = saved.ToString();
         foreach (var line in lines)
-            if (line != null && line.text.Contains("{0}"))
-                line.text = string.Format(line.text, saved);
+            if (line != null)
+                line.text = line.text.Replace("{time}", time).Replace("{count}", count);
 
         if (playAgain != null)
         {
@@ -61,6 +63,18 @@ public class DeathScreen : MonoBehaviour
         group.interactable = true;
         group.blocksRaycasts = true;
         StartCoroutine(FadeInRoutine());
+    }
+
+    // "1 minute and 23 seconds", or just "23 seconds" under a minute — spelled out to read as a sentence.
+    static string FormatTime(float seconds)
+    {
+        int total = Mathf.FloorToInt(seconds);
+        int m = total / 60;
+        int s = total % 60;
+        string ss = s + (s == 1 ? " second" : " seconds");
+        if (m == 0) return ss;
+        string mm = m + (m == 1 ? " minute" : " minutes");
+        return mm + " and " + ss;
     }
 
     void Update()

@@ -71,6 +71,7 @@ public class IntroSequence : MonoBehaviour
     [SerializeField] MonoBehaviour batAI;
     [SerializeField] LumiEnergy lumi;
     [SerializeField] CompanionsSaved companions;
+    [SerializeField] OnboardingSequence onboarding;
     [SerializeField] Image panelImage;
     [SerializeField] CanvasGroup rootGroup;
     [SerializeField] CanvasGroup batEyes;
@@ -262,9 +263,14 @@ public class IntroSequence : MonoBehaviour
         float globalBase = global != null ? global.intensity : 0f;
         if (global != null) global.intensity = 0f;
 
-        if (lumi != null) { lumi.enabled = true; lumi.Ignite(igniteDuration); }
-        if (player != null) player.enabled = true;
-        if (companions != null) companions.enabled = true;
+        if (lumi != null)
+        {
+            lumi.enabled = true;
+            // First run hands over to the tutorial, which brings Lumi up from dark; otherwise he arrives lit.
+            if (onboarding != null) { lumi.SetEnergy(0f); lumi.DrainPaused = true; }
+            lumi.Ignite(igniteDuration);
+        }
+        if (onboarding == null && player != null) player.enabled = true;
 
         float t = 0f;
         while (t < igniteDuration)
@@ -279,12 +285,16 @@ public class IntroSequence : MonoBehaviour
         if (rootGroup != null) rootGroup.alpha = 0f;
         if (global != null) global.intensity = globalBase;
 
-        // Scene is fully lit — now the chase begins.
+        // Hands-on tutorial before the chase. It sits inside the first-run handoff, so it only ever plays once.
+        playing = false;
+        if (onboarding != null) yield return onboarding.Run();
+
+        // Scene is fully lit and the player is taught — now the tally and the chase begin together.
+        if (companions != null) companions.enabled = true;
         if (batAI != null) batAI.enabled = true;
 
         PlayerPrefs.SetInt(SeenKey, 1);
         PlayerPrefs.Save();
-        playing = false;
         gameObject.SetActive(false);
     }
 

@@ -120,12 +120,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0cea63b9405994dab9a041732c987d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  energyValue: 30
+  energyValue: 20
   driftSpeed: 0.3
-  wanderSpeed: 0.2
+  wanderSpeed: 1
   absorbRadius: 3
   absorbSpeed: 15
   pickupRadius: 0.5
+  homesFromAnywhere: 0
+  burstDuration: 0
+  burstSpeed: 6
+  burstDrag: 6
 --- !u!114 &7054885374511232800
 MonoBehaviour:
   m_ObjectHideFlags: 0

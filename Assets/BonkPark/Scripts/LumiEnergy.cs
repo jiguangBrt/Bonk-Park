@@ -69,6 +69,9 @@ public class LumiEnergy : MonoBehaviour
     public float LowLightThreshold => lowLightThreshold;
     public bool IsLowLight => Normalized < lowLightThreshold;
 
+    // Holds the passive drain while the run is paused for onboarding or frozen on death.
+    public bool DrainPaused { get; set; }
+
     void Awake()
     {
         if (!Application.isPlaying) return;
@@ -94,7 +97,8 @@ public class LumiEnergy : MonoBehaviour
             SyncEditorColor();
             return;
         }
-        energy = Mathf.Max(0f, energy - drainRate * Time.deltaTime);
+        if (!DrainPaused)
+            energy = Mathf.Max(0f, energy - drainRate * Time.deltaTime);
         if (igniting)
         {
             igniteElapsed += Time.deltaTime;
@@ -116,6 +120,12 @@ public class LumiEnergy : MonoBehaviour
     public void Add(float amount)
     {
         energy = Mathf.Min(maxEnergy, energy + amount);
+    }
+
+    // Set the charge directly — the intro starts Lumi dark at zero, the tutorial tops it back up before the chase.
+    public void SetEnergy(float value)
+    {
+        energy = Mathf.Clamp(value, 0f, maxEnergy);
     }
 
     // Ignition ramp for the intro handoff; the glow swells from dark to full over the given duration.

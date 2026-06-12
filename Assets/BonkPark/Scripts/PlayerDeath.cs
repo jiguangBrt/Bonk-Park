@@ -49,12 +49,13 @@ public class PlayerDeath : MonoBehaviour
             if (batRb != null) { batRb.velocity = Vector2.zero; batRb.angularVelocity = 0f; }
         }
 
-        if (lumi != null) lumi.Extinguish(zoomDuration);
+        if (lumi != null) { lumi.DrainPaused = true; lumi.Extinguish(zoomDuration); }
         if (cameraZoom != null) cameraZoom.PlayZoom(transform, zoomDuration, targetSize);
         if (companions != null) companions.StopCounting();
 
         yield return new WaitForSeconds(zoomDuration);
 
-        if (deathScreen != null) deathScreen.Show(companions != null ? companions.Saved : 0);
+        if (deathScreen != null)
+            deathScreen.Show(companions != null ? companions.Saved : 0, companions != null ? companions.SurvivalTime : 0f);
     }
 }
