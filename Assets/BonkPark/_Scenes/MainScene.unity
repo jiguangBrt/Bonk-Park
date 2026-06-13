@@ -2219,7 +2219,7 @@ MonoBehaviour:
   batAI: {fileID: 50757539}
   lumi: {fileID: 1449090963}
   companions: {fileID: 1165056177}
-  onboarding: {fileID: 926617931}
+  onboarding: {fileID: 0}
   panelImage: {fileID: 1810165766}
   rootGroup: {fileID: 959618322}
   batEyes: {fileID: 426975872}
@@ -2433,12 +2433,36 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1449090959}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: maxSpeed
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: bodyRadius
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: autoBraking
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: acceleration
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: dangerWeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: lightSpawner
       value: 
       objectReference: {fileID: 1292136375}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: drawDebugGizmos
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3197101086266048994, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.034
       objectReference: {fileID: 0}
     - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2479,6 +2503,26 @@ PrefabInstance:
     - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Color.b
+      value: 0.026637383
+      objectReference: {fileID: 0}
+    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Color.r
+      value: 0.754717
+      objectReference: {fileID: 0}
+    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_Intensity
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
+      propertyPath: m_PointLightOuterRadius
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7889086360451900784, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: m_Name
@@ -3368,7 +3412,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
   m_Color: {r: 0.17354925, g: 0.2635, b: 0.408805, a: 1}
-  m_Intensity: 0.6
+  m_Intensity: 0.2
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
   m_ApplyToSortingLayers: 00000000
@@ -3646,7 +3690,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 10
   arrivalRange: 2
-  acceleration: 10
+  acceleration: 15
   autoBraking: 25
   stopRadius: 0.5
   resumeRadius: 0.5
