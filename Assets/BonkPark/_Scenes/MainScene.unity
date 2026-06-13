@@ -176,7 +176,7 @@ MonoBehaviour:
   lumi: {fileID: 1449090963}
   valueLabel: {fileID: 504524118}
   orb: {fileID: 256445629}
-  highColor: {r: 1, g: 0.79, b: 0.32, a: 1}
+  highColor: {r: 1, g: 0.92049295, b: 0.7452829, a: 1}
   lowColor: {r: 0.78, g: 0.16, b: 0.12, a: 1}
   lowFlickerSpeed: 12
   lowFlickerAmount: 0.35
@@ -2273,7 +2273,7 @@ MonoBehaviour:
   batEyes: {fileID: 426975872}
   narration: {fileID: 1641593813}
   narrationSource: {fileID: 959618327}
-  forceReplayInEditor: 0
+  forceReplayInEditor: 1
 --- !u!225 &959618322
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2481,37 +2481,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1449090959}
     - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: maxSpeed
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: bodyRadius
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: autoBraking
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: acceleration
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: dangerWeight
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: lightSpawner
       value: 
       objectReference: {fileID: 1292136375}
-    - target: {fileID: 2844496577481487364, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: drawDebugGizmos
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3197101086266048994, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.034
-      objectReference: {fileID: 0}
     - target: {fileID: 3599102881466632345, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.66
@@ -2552,33 +2524,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: m_Color.b
-      value: 0.026637383
-      objectReference: {fileID: 0}
-    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: m_Color.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: m_Color.r
-      value: 0.754717
-      objectReference: {fileID: 0}
-    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: m_Intensity
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3744455490191410260, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: m_PointLightOuterRadius
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 7889086360451900784, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
       propertyPath: m_Name
       value: Bat
-      objectReference: {fileID: 0}
-    - target: {fileID: 7889086360451900784, guid: bc2a6809977cea845b0cccacdf034ece, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3642,9 +3590,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.00390625
+    y: 0
     width: 1
-    height: 0.9921875
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
