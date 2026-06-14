@@ -85,16 +85,21 @@ public class IntroSequence : MonoBehaviour
     [SerializeField] bool forceReplayInEditor;
 #endif
 
-    const string SeenKey = "IntroPlayed";
+    public const string SeenKey = "IntroPlayed";
+    public static bool ForceReplay;
 
     Material mat;
     float currentProgress;
     bool skipRequested;
     bool playing;
+    bool replay;
 
     void Awake()
     {
         bool seen = PlayerPrefs.GetInt(SeenKey, 0) == 1;
+        replay = ForceReplay;
+        ForceReplay = false;
+        if (replay) seen = false;
 #if UNITY_EDITOR
         if (forceReplayInEditor) seen = false;
 #endif

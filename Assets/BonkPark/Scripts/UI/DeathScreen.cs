@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 // The ending: how many fireflies sealed their light in time, laid over the final picture. Hidden until the run ends,
@@ -17,8 +18,9 @@ public class DeathScreen : MonoBehaviour
     [Tooltip("Restarts the run.")]
     [SerializeField] Button playAgain;
 
-    [Tooltip("Quits the game.")]
-    [SerializeField] Button quit;
+    [Tooltip("Back to the main menu.")]
+    [FormerlySerializedAs("quit")]
+    [SerializeField] Button back;
 
     [Tooltip("Fade-in, seconds.")]
     [SerializeField] float fadeIn = 0.8f;
@@ -54,10 +56,10 @@ public class DeathScreen : MonoBehaviour
             playAgain.onClick.AddListener(Restart);
         }
 
-        if (quit != null)
+        if (back != null)
         {
-            quit.onClick.RemoveAllListeners();
-            quit.onClick.AddListener(Quit);
+            back.onClick.RemoveAllListeners();
+            back.onClick.AddListener(Back);
         }
 
         group.interactable = true;
@@ -103,12 +105,8 @@ public class DeathScreen : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    void Quit()
+    void Back()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        SceneManager.LoadScene("MainMenu");
     }
 }
