@@ -15,6 +15,8 @@ public class MainMenuController : MonoBehaviour
 
     void Awake()
     {
+        MusicManager.Play(MusicManager.Theme.Calm);
+
         if (PlayerPrefs.GetInt(IntroSequence.SeenKey, 0) == 0)
         {
             SceneManager.LoadScene(gameScene);

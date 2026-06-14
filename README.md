@@ -72,6 +72,19 @@ Bonk-Park/
 ## Credits
 
 - All gameplay code and art are original to this project.
-- No third-party assets are bundled in the current build.
 - Engine: Unity 2022 LTS, URP 2D Renderer.
 - Licensed under the [MIT License](LICENSE).
+
+### Audio
+
+Music and sound effects are from [Pixabay](https://pixabay.com) under the [Pixabay Content License](https://pixabay.com/service/license-summary/) (free for commercial use, no attribution required — credited here anyway).
+
+| Sound | Used for | Source |
+|---|---|---|
+| Quiet Night | Menu, opening story, and death screen | [pixabay.com/music/…258244](https://pixabay.com/music/modern-classical-quiet-night-258244/) |
+| Cinematic Thriller Percussive Tension Loop | Tutorial, chase, and pause | [pixabay.com/music/…542941](https://pixabay.com/music/crime-scene-cinematic-thriller-percussive-tension-loop-542941/) |
+| Giant Axe Strike Hitting Solid Wood | Bonk impact | [pixabay.com/sound-effects/…450247](https://pixabay.com/sound-effects/giant-axe-strike-hitting-solid-wood-3-450247/) |
+| Simple Whoosh | Dash | [pixabay.com/sound-effects/…382724](https://pixabay.com/sound-effects/film-special-effects-simple-whoosh-382724/) |
+| Crickets | Night ambience | [pixabay.com/sound-effects/…395138](https://pixabay.com/sound-effects/nature-crickets-395138/) |
+| Scale E6 | Mote pickup chime | [pixabay.com/sound-effects/…14577](https://pixabay.com/sound-effects/film-special-effects-scale-e6-14577/) |
+| Confirm Tap | Menu button hover | [pixabay.com/sound-effects/…394001](https://pixabay.com/sound-effects/film-special-effects-confirm-tap-394001/) |

@@ -105,9 +105,14 @@ public class IntroSequence : MonoBehaviour
 #endif
         if (seen)
         {
+            // Straight into the chase — no storybook — so the tension score is already up.
+            MusicManager.Play(MusicManager.Theme.Tension);
             gameObject.SetActive(false);
             return;
         }
+
+        // The storybook opens under the calm theme; the handoff swaps it for the chase.
+        MusicManager.Play(MusicManager.Theme.Calm);
 
         mat = Instantiate(panelImage.material);
         panelImage.material = mat;
@@ -251,6 +256,9 @@ public class IntroSequence : MonoBehaviour
     IEnumerator HandoffRoutine()
     {
         if (narrationSource != null) narrationSource.Stop();
+
+        // The chase score swells up with the scene lights, carrying through the tutorial into the chase.
+        MusicManager.Play(MusicManager.Theme.Tension);
 
         if (currentProgress > 0.001f)
             yield return RevealRoutine(currentProgress, 0f, revealOut * 0.6f);

@@ -44,6 +44,8 @@ public class DeathScreen : MonoBehaviour
 
     public void Show(int saved, float seconds)
     {
+        MusicManager.Play(MusicManager.Theme.Calm);
+
         string time = FormatTime(seconds);
         string count = saved.ToString();
         foreach (var line in lines)
