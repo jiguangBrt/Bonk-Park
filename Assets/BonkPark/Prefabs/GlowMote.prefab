@@ -130,6 +130,7 @@ MonoBehaviour:
   burstDuration: 0
   burstSpeed: 6
   burstDrag: 6
+  collectSound: {fileID: 8300000, guid: 7a94a4cdf52befc4b828918da18303c9, type: 3}
 --- !u!114 &7054885374511232800
 MonoBehaviour:
   m_ObjectHideFlags: 0

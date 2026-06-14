@@ -90,6 +90,12 @@ public class BatAI : MonoBehaviour
     [Tooltip("Spawner that spills light at the bonk spot.")]
     [SerializeField] GlowMoteSpawner lightSpawner;
 
+    [Tooltip("Impact played when the bat hits an obstacle.")]
+    [SerializeField] AudioClip bonkSound;
+
+    [Tooltip("Seconds skipped at the head of the impact clip so the strike lands the instant of contact.")]
+    [SerializeField] float bonkSoundLead;
+
     [Header("Debug")]
 
     [Tooltip("Draw steering rays and the heading/desired velocity arrows in the editor.")]
@@ -100,6 +106,7 @@ public class BatAI : MonoBehaviour
 
     Rigidbody2D rb;
     Animator animator;
+    AudioSource sfx;
     CameraShake cameraShake;
     Vector2 heading;
     float currentSpeed;
@@ -172,6 +179,7 @@ public class BatAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        sfx = GetComponent<AudioSource>();
         var mainCam = Camera.main;
         if (mainCam != null) cameraShake = mainCam.GetComponent<CameraShake>();
     }
@@ -343,9 +351,20 @@ public class BatAI : MonoBehaviour
 
         stunRemaining = bonk.StunDuration;
         if (animator != null) animator.SetTrigger(BonkTriggerId);
+        PlayBonkSound();
         if (cameraShake != null) cameraShake.Shake(shakeDuration, shakeMagnitude);
         if (lightSpawner != null) lightSpawner.SpawnBonkLight(contact.point);
         bonk.OnBonk();
+    }
+
+    // Start past the clip's silent head so the strike reads on contact, not a beat later. clip+time+Play instead of
+    // PlayOneShot because only a positioned source can skip the lead-in.
+    void PlayBonkSound()
+    {
+        if (sfx == null || bonkSound == null) return;
+        sfx.clip = bonkSound;
+        sfx.time = Mathf.Clamp(bonkSoundLead, 0f, Mathf.Max(0f, bonkSound.length - 0.01f));
+        sfx.Play();
     }
 
     void OnDrawGizmos()

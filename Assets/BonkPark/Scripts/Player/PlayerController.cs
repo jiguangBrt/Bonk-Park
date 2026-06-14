@@ -64,6 +64,12 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Dash cooldown, s.")]
     [SerializeField] float dashCooldown = 0.8f;
 
+    [Tooltip("Whoosh played on each dash.")]
+    [SerializeField] AudioClip dashSound;
+
+    [Tooltip("Seconds skipped at the head of the whoosh so it lands the instant the dash fires, not after the silent lead-in.")]
+    [SerializeField] float dashSoundLead = 0.06f;
+
     [Header("Init")]
 
     [Tooltip("Initial heading.")]
@@ -74,6 +80,7 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody2D rb;
     LumiEnergy energy;
+    AudioSource sfx;
     Vector2 heading;
     float currentSpeed;
     bool parked;
@@ -107,6 +114,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         energy = GetComponent<LumiEnergy>();
+        sfx = GetComponent<AudioSource>();
         heading = initialHeading.sqrMagnitude > 0f ? initialHeading.normalized : Vector2.up;
         currentSpeed = Mathf.Clamp(initialSpeed, 0f, maxSpeed);
     }
@@ -188,7 +196,18 @@ public class PlayerController : MonoBehaviour
             energy.Consume(dashCost);
             energy.Flare();
         }
+        PlayDashSound();
         dashCooldownTimer = dashCooldown;
+    }
+
+    // Start past the whoosh's silent head so it reads on the dash, not a beat later. clip+time+Play instead of
+    // PlayOneShot because only a positioned source can skip the lead-in.
+    void PlayDashSound()
+    {
+        if (sfx == null || dashSound == null) return;
+        sfx.clip = dashSound;
+        sfx.time = Mathf.Clamp(dashSoundLead, 0f, Mathf.Max(0f, dashSound.length - 0.01f));
+        sfx.Play();
     }
 
     void TickDash()

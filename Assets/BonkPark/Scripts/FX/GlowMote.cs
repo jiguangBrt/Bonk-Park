@@ -34,6 +34,9 @@ public class GlowMote : MonoBehaviour
     [Tooltip("How fast the burst coasts to a stop, m/s^2.")]
     [SerializeField] float burstDrag = 12f;
 
+    [Tooltip("Chime played through Lumi when the mote is absorbed.")]
+    [SerializeField] AudioClip collectSound;
+
     LumiEnergy lumi;
     Transform player;
     Vector2 arenaCenter;
@@ -109,7 +112,15 @@ public class GlowMote : MonoBehaviour
     void Collect()
     {
         collected = true;
-        if (lumi != null) lumi.Add(energyValue);
+        if (lumi != null)
+        {
+            lumi.Add(energyValue);
+            if (collectSound != null)
+            {
+                var src = lumi.GetComponent<AudioSource>();
+                if (src != null) src.PlayOneShot(collectSound);
+            }
+        }
         Destroy(gameObject);
     }
 }
